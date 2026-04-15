@@ -28,13 +28,22 @@ docs/               # governanca e ADRs
 knowledge/          # memoria viva do projeto
 ```
 
-## Comandos da CLI (stubs)
+## Comandos da CLI
 
 ```bash
 graphmemo index [targetPath] [--full] [--dry-run]
 graphmemo context --task <taskId> [--format markdown|json]
 graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic] [--dry-run]
 ```
+
+### Comportamento atual do `index`
+
+- Indexa recursivamente arquivos `.ts`, `.tsx`, `.js` e `.jsx`
+- Ignora diretorios comuns nao relevantes (`node_modules`, `dist`, `build`, `coverage`, `.git`, `.graphmemo`)
+- Extrai imports, exports e simbolos nomeados (funcoes e classes)
+- Persiste manifest e lista de arquivos em `.graphmemo/manifest.json` e `.graphmemo/files.json`
+- Suporta `--full` para reindexacao completa e modo incremental por `mtime`/`size`/`hash`
+- Suporta `--dry-run` para validar execucao sem gravar arquivos
 
 ## Setup local
 
@@ -85,6 +94,6 @@ Campos suportados:
 
 ## Estado atual
 
-- Os comandos `index`, `context` e `import-chats` estao implementados como stubs.
-- A estrutura foi preparada para crescimento incremental com separacao de responsabilidades.
-- A logica real de indexacao/grafo/importacao/context builder sera implementada nas proximas tasks.
+- O comando `index` esta implementado com persistencia local versionada em `.graphmemo/`.
+- Os comandos `context` e `import-chats` permanecem como stubs.
+- A estrutura segue preparada para evolucao incremental para grafo semantico, importacao de chats e context builder.

@@ -31,11 +31,15 @@ export class ConsoleLogger implements Logger {
       return;
     }
 
+    const correlationId =
+      typeof context?.correlationId === "string" ? context.correlationId : "local-cli";
+
     const payload = {
       timestamp: new Date().toISOString(),
       level,
       service: "graphmemo-cli",
       operation: "command",
+      correlation_id: correlationId,
       message,
       context
     };

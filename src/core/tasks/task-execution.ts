@@ -4,6 +4,7 @@ export type TaskKind = (typeof SUPPORTED_TASKS)[number];
 
 export interface TaskExecution {
   kind: TaskKind;
-  status: "stub";
+  status: "stub" | "success" | "error";
   message: string;
+  details?: unknown;
 }
