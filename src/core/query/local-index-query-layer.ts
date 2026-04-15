@@ -1,0 +1,209 @@
+import { dirname, extname, join } from "node:path";
+
+import type { IndexedFile } from "../indexing/indexed-file";
+import type { SourceExport } from "../indexing/source-export";
+import type { QueryMatchOptions } from "./basic-relations";
+import type { BasicGraphRelation } from "./basic-relations";
+
+export interface FileDetails {
+  relativePath: string;
+  symbols: IndexedFile["symbols"];
+  imports: IndexedFile["imports"];
+  exports: IndexedFile["exports"];
+}
+
+export interface ExportMatch {
+  filePath: string;
+  exportEntry: SourceExport;
+}
+
+export interface RelatedFilesResult {
+  relativePath: string;
+  dependsOn: string[];
+  importedBy: string[];
+}
+
+const SUPPORTED_INDEX_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
+
+export class LocalIndexQueryLayer {
+  private readonly filesByPath: Map<string, IndexedFile>;
+  private readonly relations: BasicGraphRelation[];
+  private readonly indexedPaths: Set<string>;
+
+  constructor(private readonly files: IndexedFile[]) {
+    this.filesByPath = new Map(files.map((file) => [file.relativePath, file]));
+    this.relations = this.buildRelations(files);
+    this.indexedPaths = new Set(files.map((file) => file.relativePath));
+  }
+
+  listIndexedFiles(): string[] {
+    return [...this.filesByPath.keys()].sort((left, right) => left.localeCompare(right));
+  }
+
+  findFilesBySymbol(name: string, options: QueryMatchOptions = {}): string[] {
+    const matcher = this.createMatcher(name, options);
+    return this.relations
+      .flatMap((relation) => {
+        if (relation.type !== "file_defines_symbol") {
+          return [];
+        }
+
+        if (!matcher(relation.symbol.name)) {
+          return [];
+        }
+
+        return [relation];
+      })
+      .map((relation) => relation.filePath)
+      .filter((filePath, index, all) => all.indexOf(filePath) === index)
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  getFileDetails(relativePath: string): FileDetails | null {
+    const file = this.filesByPath.get(relativePath);
+    if (file === undefined) {
+      return null;
+    }
+
+    return {
+      relativePath: file.relativePath,
+      symbols: file.symbols,
+      imports: file.imports,
+      exports: file.exports
+    };
+  }
+
+  findExportsBySymbol(name: string, options: QueryMatchOptions = {}): ExportMatch[] {
+    const matcher = this.createMatcher(name, options);
+    return this.relations
+      .flatMap((relation) => {
+        if (relation.type !== "file_exports_symbol") {
+          return [];
+        }
+
+        if (!matcher(relation.symbolName)) {
+          return [];
+        }
+
+        return [relation];
+      })
+      .map((relation) => ({
+        filePath: relation.filePath,
+        exportEntry: relation.exportEntry
+      }))
+      .sort((left, right) => left.filePath.localeCompare(right.filePath));
+  }
+
+  findFilesImportingModule(source: string, options: QueryMatchOptions = {}): string[] {
+    const matcher = this.createMatcher(source, options);
+    return this.relations
+      .filter((relation) => relation.type === "file_imports_module" && matcher(relation.source))
+      .map((relation) => relation.filePath)
+      .filter((filePath, index, all) => all.indexOf(filePath) === index)
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  findFilesRelatedByImportExport(relativePath: string): RelatedFilesResult | null {
+    const file = this.filesByPath.get(relativePath);
+    if (file === undefined) {
+      return null;
+    }
+
+    const dependsOn = file.imports
+      .flatMap((importEntry) => this.resolveImportSource(relativePath, importEntry.source))
+      .filter((value, index, all) => all.indexOf(value) === index)
+      .sort((left, right) => left.localeCompare(right));
+
+    const importedBy = this.files
+      .filter((candidate) => {
+        if (candidate.relativePath === relativePath) {
+          return false;
+        }
+
+        return candidate.imports.some((importEntry) =>
+          this.resolveImportSource(candidate.relativePath, importEntry.source).includes(relativePath)
+        );
+      })
+      .map((candidate) => candidate.relativePath)
+      .sort((left, right) => left.localeCompare(right));
+
+    return {
+      relativePath,
+      dependsOn,
+      importedBy
+    };
+  }
+
+  getRelations(): BasicGraphRelation[] {
+    return [...this.relations];
+  }
+
+  private buildRelations(files: IndexedFile[]): BasicGraphRelation[] {
+    const relations: BasicGraphRelation[] = [];
+
+    files.forEach((file) => {
+      file.symbols.forEach((symbol) => {
+        relations.push({
+          type: "file_defines_symbol",
+          filePath: file.relativePath,
+          symbol
+        });
+      });
+
+      file.imports.forEach((importEntry) => {
+        relations.push({
+          type: "file_imports_module",
+          filePath: file.relativePath,
+          source: importEntry.source,
+          importEntry
+        });
+      });
+
+      file.exports.forEach((exportEntry) => {
+        relations.push({
+          type: "file_exports_symbol",
+          filePath: file.relativePath,
+          symbolName: exportEntry.exportedAs ?? exportEntry.name,
+          exportEntry
+        });
+      });
+    });
+
+    return relations;
+  }
+
+  private createMatcher(input: string, options: QueryMatchOptions): (candidate: string) => boolean {
+    const exactMatch = options.exactMatch ?? true;
+    const caseSensitive = options.caseSensitive ?? true;
+
+    const query = caseSensitive ? input : input.toLowerCase();
+
+    return (candidate: string): boolean => {
+      const comparableCandidate = caseSensitive ? candidate : candidate.toLowerCase();
+
+      if (exactMatch) {
+        return comparableCandidate === query;
+      }
+
+      return comparableCandidate.includes(query);
+    };
+  }
+
+  private resolveImportSource(importerPath: string, source: string): string[] {
+    if (!source.startsWith(".")) {
+      return [];
+    }
+
+    const basePath = join(dirname(importerPath), source).split("\\").join("/");
+    const withExtension = extname(basePath) !== "" ? [basePath] : [];
+
+    const candidates = extname(basePath) === ""
+      ? [
+          ...SUPPORTED_INDEX_EXTENSIONS.map((extension) => `${basePath}${extension}`),
+          ...SUPPORTED_INDEX_EXTENSIONS.map((extension) => `${basePath}/index${extension}`)
+        ]
+      : withExtension;
+
+    return candidates.filter((candidate) => this.indexedPaths.has(candidate));
+  }
+}

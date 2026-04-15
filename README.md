@@ -32,6 +32,7 @@ knowledge/          # memoria viva do projeto
 
 ```bash
 graphmemo index [targetPath] [--full] [--dry-run]
+graphmemo query [targetPath] [--symbol <name>] [--file <relativePath>] [--module <source>] [--related-to <relativePath>] [--list-files]
 graphmemo context --task <taskId> [--format markdown|json]
 graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic] [--dry-run]
 ```
@@ -44,6 +45,35 @@ graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic
 - Persiste manifest e lista de arquivos em `.graphmemo/manifest.json` e `.graphmemo/files.json`
 - Suporta `--full` para reindexacao completa e modo incremental por `mtime`/`size`/`hash`
 - Suporta `--dry-run` para validar execucao sem gravar arquivos
+
+### Comportamento atual do `query`
+
+- Le o indice persistido em `.graphmemo/manifest.json` e `.graphmemo/files.json`
+- Modela relacoes basicas e auditaveis:
+  - `file_defines_symbol`
+  - `file_imports_module`
+  - `file_exports_symbol`
+- Suporta consultas para:
+  - encontrar arquivos por simbolo (`--symbol`)
+  - listar detalhes de um arquivo (`--file`)
+  - listar arquivos que importam um modulo (`--module`)
+  - localizar relacoes de import/export por arquivo (`--related-to`)
+  - listar todos os arquivos indexados (`--list-files`)
+- Suporta match configuravel:
+  - `--case-sensitive` / `--no-case-sensitive`
+  - `--exact-match` / `--no-exact-match`
+- Trata erros tipados para indice ausente/corrompido com instrucoes de recuperacao
+
+Exemplos:
+
+```bash
+npm run dev -- query . --symbol runIndex
+npm run dev -- query . --symbol service --no-case-sensitive --no-exact-match
+npm run dev -- query . --file src/application/use-cases/run-index.use-case.ts
+npm run dev -- query . --module "./register-index-command"
+npm run dev -- query . --related-to src/cli/create-cli.ts
+npm run dev -- query . --list-files
+```
 
 ## Setup local
 
@@ -95,5 +125,6 @@ Campos suportados:
 ## Estado atual
 
 - O comando `index` esta implementado com persistencia local versionada em `.graphmemo/`.
+- O comando `query` esta implementado para consulta estrutural do indice local.
 - Os comandos `context` e `import-chats` permanecem como stubs.
 - A estrutura segue preparada para evolucao incremental para grafo semantico, importacao de chats e context builder.
