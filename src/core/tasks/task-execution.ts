@@ -1,4 +1,4 @@
-export const SUPPORTED_TASKS = ["index", "context", "import-chats"] as const;
+export const SUPPORTED_TASKS = ["index", "query", "context", "import-chats"] as const;
 
 export type TaskKind = (typeof SUPPORTED_TASKS)[number];
 
