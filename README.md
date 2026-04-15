@@ -130,6 +130,74 @@ npm run dev -- context . --task "refatorar parser de chatgpt" --module "./reader
 npm install
 ```
 
+## Demo ponta a ponta (Task 6)
+
+Fixture usada na validacao:
+
+- `tests/fixtures/sample-workspace/`
+- contem `src/` (TS/JS com relacoes reais), `chat-exports/`, `knowledge/` e `docs/`
+
+### 1) Resetar artefatos da demo
+
+```bash
+npm run demo:reset
+```
+
+### 2) Indexar a fixture
+
+```bash
+npm run dev -- index tests/fixtures/sample-workspace
+```
+
+Saida esperada (resumo):
+
+- status `SUCCESS`
+- `.graphmemo/manifest.json` e `.graphmemo/files.json` gerados dentro da fixture
+- `indexedFilesCount` maior que zero
+
+### 3) Consultar simbolo no indice
+
+```bash
+npm run dev -- query tests/fixtures/sample-workspace --symbol calculateCommission
+```
+
+Saida esperada (resumo):
+
+- `filesBySymbol` inclui `src/domain/commission-policy.ts`
+- `exportsBySymbol` inclui `calculateCommission`
+
+### 4) Importar chat para knowledge da fixture
+
+```bash
+npm run dev -- import-chats --source tests/fixtures/sample-workspace/chat-exports --provider generic
+```
+
+Saida esperada (resumo):
+
+- status `SUCCESS`
+- `persistedNotesCount` igual a `1`
+- nota gerada em `tests/fixtures/sample-workspace/knowledge/imports/`
+
+### 5) Construir contexto consolidado
+
+```bash
+npm run dev -- context tests/fixtures/sample-workspace --task "corrigir calculo de comissao premium" --format json
+```
+
+Saida esperada (resumo):
+
+- `relevantFiles` inclui `src/domain/commission-policy.ts`
+- `relevantKnowledgeNotes` inclui nota de `knowledge/features/` e nota em `knowledge/imports/`
+- `relevantAdrsAndDocs` inclui ADR da fixture (`docs/adr/ADR-001-commission-rounding-policy.md`)
+
+### 6) Executar o teste E2E automatizado
+
+```bash
+npm run test:e2e
+```
+
+O teste cria uma copia temporaria da fixture, executa `index -> query -> import-chats -> context` em sequencia e valida artefatos/resultados deterministas.
+
 ## Execucao
 
 Modo desenvolvimento (sem build):
@@ -153,6 +221,7 @@ npm run lint
 npm run format:check
 npm run typecheck
 npm run test
+npm run test:e2e
 npm run quality
 ```
 
@@ -177,4 +246,5 @@ Campos suportados:
 - O comando `query` esta implementado para consulta estrutural do indice local.
 - O comando `import-chats` esta implementado para ingestao deterministica de exports de conversa em `knowledge/imports/`.
 - O comando `context` esta implementado com context builder deterministico sobre indice + knowledge.
+- Existe validacao E2E reproduzivel com fixture realista em `tests/fixtures/` cobrindo o fluxo completo da CLI.
 - A estrutura segue preparada para evolucao incremental para heuristicas mais ricas e grafos de contexto.

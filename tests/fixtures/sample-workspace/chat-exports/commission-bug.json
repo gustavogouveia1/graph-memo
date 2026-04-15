@@ -1,0 +1,13 @@
+{
+  "topic": "bug calculo de comissao premium",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Precisamos corrigir o calculo de comissao premium. A funcao calculateCommission em src/domain/commission-policy.ts parece aplicar bonus incorreto em alguns cenarios."
+    },
+    {
+      "role": "assistant",
+      "content": "Vamos revisar calculateCommission, validar baseRate e bonusRate e atualizar os testes do fluxo de comissao."
+    }
+  ]
+}
