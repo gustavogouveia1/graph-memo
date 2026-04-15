@@ -33,7 +33,7 @@ knowledge/          # memoria viva do projeto
 ```bash
 graphmemo index [targetPath] [--full] [--dry-run]
 graphmemo query [targetPath] [--symbol <name>] [--file <relativePath>] [--module <source>] [--related-to <relativePath>] [--list-files]
-graphmemo context --task <taskId> [--format markdown|json]
+graphmemo context [targetPath] --task "<descricao>" [--format markdown|json] [--symbol <name>] [--file <relativePath>] [--module <source>]
 graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic] [--dry-run]
 ```
 
@@ -93,6 +93,37 @@ npm run dev -- import-chats --source ./exports/chatgpt-export.json --provider ch
 npm run dev -- import-chats --source ./exports --provider claude --dry-run
 ```
 
+### Comportamento atual do `context`
+
+- Recebe task textual (`--task`) e filtros opcionais (`--symbol`, `--file`, `--module`)
+- Extrai termos simples e deterministas sem IA/embeddings
+- Cruza task com:
+  - indice estrutural persistido em `.graphmemo/`
+  - query layer local (simbolos, modulos, relacoes import/export)
+  - notas em `knowledge/` (incluindo `knowledge/imports/`)
+  - ADRs e regras em `docs/`
+- Monta pacote consolidado com:
+  - `Task`
+  - `Relevant Files`
+  - `Relevant Symbols`
+  - `Relevant Modules`
+  - `Relevant Knowledge Notes`
+  - `Relevant ADRs/Docs`
+  - `Suggested Starting Points`
+- Suporta saida em `markdown` (default) ou `json`
+- Suporta controle de matching:
+  - `--case-sensitive` / `--no-case-sensitive`
+  - `--exact-match` / `--no-exact-match`
+
+Exemplos:
+
+```bash
+npm run dev -- context . --task "corrigir calculo de comissao"
+npm run dev -- context . --task "corrigir calculo de comissao" --symbol calculateCommission
+npm run dev -- context . --task "ajustar fluxo de indexacao incremental" --format json
+npm run dev -- context . --task "refatorar parser de chatgpt" --module "./readers/chatgpt-chat-import-reader"
+```
+
 ## Setup local
 
 ```bash
@@ -145,5 +176,5 @@ Campos suportados:
 - O comando `index` esta implementado com persistencia local versionada em `.graphmemo/`.
 - O comando `query` esta implementado para consulta estrutural do indice local.
 - O comando `import-chats` esta implementado para ingestao deterministica de exports de conversa em `knowledge/imports/`.
-- O comando `context` permanece como stub.
-- A estrutura segue preparada para evolucao incremental para grafo semantico e context builder.
+- O comando `context` esta implementado com context builder deterministico sobre indice + knowledge.
+- A estrutura segue preparada para evolucao incremental para heuristicas mais ricas e grafos de contexto.
