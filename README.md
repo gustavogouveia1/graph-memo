@@ -1,6 +1,7 @@
 # GraphMemo
 
-GraphMemo is a project focused on sustainable technical governance, structured engineering standards, and knowledge-driven software evolution.
+An AI engineering memory layer that combines persistent project context, atomic notes, and a local code knowledge graph.
+This repository is also focused on sustainable technical governance, structured engineering standards, and knowledge-driven software evolution.
 
 ## Repository structure
 
