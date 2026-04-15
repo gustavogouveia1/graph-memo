@@ -11,6 +11,7 @@ Este diretorio e a memoria operacional do projeto para humanos e IA.
 - `knowledge/entities/`: conceitos de dominio e relacionamentos.
 - `knowledge/flows/`: fluxos de negocio e operacionais.
 - `knowledge/glossary/`: vocabulario oficial do projeto.
+- `knowledge/imports/`: chats importados e normalizados para reutilizacao.
 
 ## Convencoes de nota atomica
 
