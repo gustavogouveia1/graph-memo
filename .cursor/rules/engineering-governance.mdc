@@ -1,0 +1,27 @@
+---
+description: Governanca tecnica obrigatoria para desenvolvimento assistido por IA
+alwaysApply: true
+---
+
+# Engineering Governance
+
+Antes de qualquer implementacao, a IA MUST:
+
+1. Ler `docs/engineering/overview.md`.
+2. Ler regras tecnicas do dominio impactado.
+3. Ler processo adequado (`feature`, `bugfix`, `api-schema-change`, `refactoring`).
+4. Checar ADRs em `docs/adr/`.
+5. Consultar contexto em `knowledge/` (nota primaria + wikilinks).
+
+Durante implementacao, a IA MUST:
+
+- seguir regras de seguranca e arquitetura como prioridade maxima;
+- manter mudancas rastreaveis por unidade logica;
+- adicionar/ajustar testes proporcionais ao risco;
+- atualizar documentacao viva e notas de conhecimento.
+
+Antes de concluir, a IA MUST:
+
+- executar `docs/engineering/definition-of-done.md`;
+- confirmar ausencia de anti-padroes proibidos;
+- registrar decisao relevante em ADR ou `knowledge/decisions/`.
