@@ -1,10 +1,13 @@
 import { Command } from "commander";
+import { join } from "node:path";
 
 import { BuildContextUseCase } from "../application/use-cases/build-context.use-case";
 import { ImportChatsUseCase } from "../application/use-cases/import-chats.use-case";
 import { QueryIndexUseCase } from "../application/use-cases/query-index.use-case";
 import { RunIndexUseCase } from "../application/use-cases/run-index.use-case";
 import { NodeFileSystem } from "../infrastructure/filesystem/node-file-system";
+import { FileChatImportReader } from "../infrastructure/ingestion/file-chat-import-reader";
+import { FileKnowledgeWriter } from "../infrastructure/knowledge/file-knowledge-writer";
 import { ConsoleLogger } from "../infrastructure/logging/console-logger";
 import { TypeScriptSourceCodeParser } from "../infrastructure/parsing/typescript/typescript-source-code-parser";
 import { FileIndexStore } from "../infrastructure/persistence/file-index-store";
@@ -21,10 +24,17 @@ export function createCli(config: ProjectConfig): Command {
   const sourceCodeParser = new TypeScriptSourceCodeParser();
   const indexStore = new FileIndexStore();
   const queryReader = new FileIndexQueryReader();
+  const chatImportReader = new FileChatImportReader();
+  const knowledgeWriter = new FileKnowledgeWriter();
   const runIndexUseCase = new RunIndexUseCase(logger, fileSystem, sourceCodeParser, indexStore);
   const queryIndexUseCase = new QueryIndexUseCase(logger, queryReader);
   const buildContextUseCase = new BuildContextUseCase(logger);
-  const importChatsUseCase = new ImportChatsUseCase(logger);
+  const importChatsUseCase = new ImportChatsUseCase(
+    logger,
+    chatImportReader,
+    knowledgeWriter,
+    join(config.workspaceRoot, config.knowledgeDir)
+  );
 
   const program = new Command();
 

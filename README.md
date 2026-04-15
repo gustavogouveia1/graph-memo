@@ -75,6 +75,24 @@ npm run dev -- query . --related-to src/cli/create-cli.ts
 npm run dev -- query . --list-files
 ```
 
+### Comportamento atual do `import-chats`
+
+- Le export de chat a partir de arquivo unico ou diretorio
+- Providers suportados: `generic`, `claude`, `cursor`, `chatgpt`
+- Usa parser dedicado por provider quando possivel
+- Faz fallback seguro para parser `generic` quando parser dedicado nao reconhece o formato
+- Normaliza para um modelo interno consistente com `provider`, `source_file`, `imported_at`, `topic`, `messages` e `timestamp` (quando houver)
+- Gera notas markdown em `knowledge/imports/`
+- Suporta `--dry-run` sem persistir arquivos
+
+Exemplos:
+
+```bash
+npm run dev -- import-chats --source ./exports --provider cursor
+npm run dev -- import-chats --source ./exports/chatgpt-export.json --provider chatgpt
+npm run dev -- import-chats --source ./exports --provider claude --dry-run
+```
+
 ## Setup local
 
 ```bash
@@ -126,5 +144,6 @@ Campos suportados:
 
 - O comando `index` esta implementado com persistencia local versionada em `.graphmemo/`.
 - O comando `query` esta implementado para consulta estrutural do indice local.
-- Os comandos `context` e `import-chats` permanecem como stubs.
-- A estrutura segue preparada para evolucao incremental para grafo semantico, importacao de chats e context builder.
+- O comando `import-chats` esta implementado para ingestao deterministica de exports de conversa em `knowledge/imports/`.
+- O comando `context` permanece como stub.
+- A estrutura segue preparada para evolucao incremental para grafo semantico e context builder.
