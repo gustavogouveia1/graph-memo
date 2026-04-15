@@ -3,7 +3,10 @@ import { Command } from "commander";
 import { BuildContextUseCase } from "../application/use-cases/build-context.use-case";
 import { ImportChatsUseCase } from "../application/use-cases/import-chats.use-case";
 import { RunIndexUseCase } from "../application/use-cases/run-index.use-case";
+import { NodeFileSystem } from "../infrastructure/filesystem/node-file-system";
 import { ConsoleLogger } from "../infrastructure/logging/console-logger";
+import { TypeScriptSourceCodeParser } from "../infrastructure/parsing/typescript/typescript-source-code-parser";
+import { FileIndexStore } from "../infrastructure/persistence/file-index-store";
 import type { ProjectConfig } from "../shared/config/project-config";
 import { registerContextCommand } from "./commands/register-context-command";
 import { registerImportChatsCommand } from "./commands/register-import-chats-command";
@@ -11,7 +14,10 @@ import { registerIndexCommand } from "./commands/register-index-command";
 
 export function createCli(config: ProjectConfig): Command {
   const logger = new ConsoleLogger(config.logLevel);
-  const runIndexUseCase = new RunIndexUseCase(logger);
+  const fileSystem = new NodeFileSystem();
+  const sourceCodeParser = new TypeScriptSourceCodeParser();
+  const indexStore = new FileIndexStore();
+  const runIndexUseCase = new RunIndexUseCase(logger, fileSystem, sourceCodeParser, indexStore);
   const buildContextUseCase = new BuildContextUseCase(logger);
   const importChatsUseCase = new ImportChatsUseCase(logger);
 
