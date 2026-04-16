@@ -1,32 +1,34 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 
 import type { IndexQueryReaderPort } from "../../application/ports/index-query-reader";
 import type { StoredIndex } from "../../application/ports/index-store";
 import { GraphMemoError } from "../../core/errors/graphmemo-error";
 import type { IndexedFile } from "../../core/indexing/indexed-file";
 import type { IndexManifest } from "../../core/indexing/index-manifest";
-
-const STATE_DIRECTORY_NAME = ".graphmemo";
-const MANIFEST_FILE_NAME = "manifest.json";
-const FILES_FILE_NAME = "files.json";
+import {
+  DEFAULT_STATE_DIR,
+  resolveStateDirectoryForDisplay,
+  resolveStateIndexPaths
+} from "../../shared/config/state-index-paths";
 
 export class FileIndexQueryReader implements IndexQueryReaderPort {
+  constructor(private readonly stateDir: string = DEFAULT_STATE_DIR) {}
+
   async read(rootPath: string): Promise<StoredIndex> {
-    const manifestPath = join(rootPath, STATE_DIRECTORY_NAME, MANIFEST_FILE_NAME);
-    const filesPath = join(rootPath, STATE_DIRECTORY_NAME, FILES_FILE_NAME);
+    const { manifestFilePath, filesFilePath } = resolveStateIndexPaths(rootPath, this.stateDir);
+    const stateDirectory = resolveStateDirectoryForDisplay(this.stateDir);
 
     let manifestRaw: string;
     let filesRaw: string;
     try {
       [manifestRaw, filesRaw] = await Promise.all([
-        readFile(manifestPath, "utf8"),
-        readFile(filesPath, "utf8")
+        readFile(manifestFilePath, "utf8"),
+        readFile(filesFilePath, "utf8")
       ]);
     } catch (error: unknown) {
       throw new GraphMemoError(
         "INDEX_NOT_FOUND",
-        "Indice local nao encontrado. Execute 'graphmemo index <caminho>' antes de usar este comando.",
+        `Indice local nao encontrado em ${stateDirectory}. Execute 'graphmemo index <caminho>' antes de usar este comando.`,
         error,
         { rootPath }
       );

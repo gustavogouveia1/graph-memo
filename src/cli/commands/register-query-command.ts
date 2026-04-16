@@ -25,11 +25,14 @@ export function registerQueryCommand(
   program
     .command("query")
     .description("Consulta o indice local e relacoes basicas de codigo")
-    .argument("[targetPath]", "Diretorio raiz onde existe .graphmemo/", ".")
+    .argument("[targetPath]", "Diretorio raiz onde existe o indice local", ".")
     .option("--symbol <name>", "Busca arquivos e exports por nome de simbolo")
     .option("--file <relativePath>", "Retorna detalhes de um arquivo indexado")
     .option("--module <source>", "Lista arquivos que importam um modulo especifico")
-    .option("--related-to <relativePath>", "Lista relacoes basicas de import/export para um arquivo")
+    .option(
+      "--related-to <relativePath>",
+      "Lista relacoes basicas de import/export para um arquivo"
+    )
     .option("--list-files", "Lista todos os arquivos indexados", false)
     .option("--case-sensitive", "Compara texto com diferenca entre maiusculas/minusculas", true)
     .option("--no-case-sensitive", "Compara texto sem diferenca entre maiusculas/minusculas")

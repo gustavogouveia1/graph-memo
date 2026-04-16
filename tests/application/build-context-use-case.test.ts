@@ -132,7 +132,9 @@ describe("BuildContextUseCase", () => {
       task: "corrigir calculo de comissao",
       relevantFiles: expect.arrayContaining(["src/core/finance/calculate-commission.ts"]),
       relevantSymbols: expect.arrayContaining(["calculateCommission"]),
-      relevantKnowledgeNotes: expect.arrayContaining(["knowledge/features/2026-04-15-comissao-v1.md"]),
+      relevantKnowledgeNotes: expect.arrayContaining([
+        "knowledge/features/2026-04-15-comissao-v1.md"
+      ]),
       relevantAdrsAndDocs: expect.arrayContaining(["docs/adr/ADR-001-arquitetura-base.md"])
     });
   });

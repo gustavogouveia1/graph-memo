@@ -74,27 +74,53 @@ export function buildStructuralContext(input: StructuralMatcherInput): Structura
   const termBuckets = splitTerms(input.terms);
 
   if (input.filters.symbol !== undefined) {
-    applyExactSymbolSignal(input.filters.symbol, input.queryLayer, input.matchOptions, fileScores, symbolScores);
+    applyExactSymbolSignal(
+      input.filters.symbol,
+      input.queryLayer,
+      input.matchOptions,
+      fileScores,
+      symbolScores
+    );
   }
   if (input.filters.file !== undefined) {
     applyExactPathSignal(input.filters.file, input.files, fileScores);
     applyExactFileNameSignal(input.filters.file, input.files, fileScores);
   }
   if (input.filters.moduleSource !== undefined) {
-    applyExactModuleSignal(input.filters.moduleSource, input.queryLayer, input.matchOptions, fileScores, moduleScores);
+    applyExactModuleSignal(
+      input.filters.moduleSource,
+      input.queryLayer,
+      input.matchOptions,
+      fileScores,
+      moduleScores
+    );
   }
 
   for (const term of termBuckets.pathTerms) {
     applyExactPathSignal(term, input.files, fileScores);
     applyExactFileNameSignal(term, input.files, fileScores);
-    applyDomainSignal(term, input.files, input.matchOptions, fileScores, symbolScores, moduleScores);
+    applyDomainSignal(
+      term,
+      input.files,
+      input.matchOptions,
+      fileScores,
+      symbolScores,
+      moduleScores
+    );
   }
 
   for (const term of termBuckets.domainTerms) {
     applyExactSymbolSignal(term, input.queryLayer, input.matchOptions, fileScores, symbolScores);
     applyExactFileNameSignal(term, input.files, fileScores);
     applyExactModuleSignal(term, input.queryLayer, input.matchOptions, fileScores, moduleScores);
-    applyDomainSignal(term, input.files, input.matchOptions, fileScores, symbolScores, moduleScores);
+    applyDomainSignal(
+      term,
+      input.files,
+      input.matchOptions,
+      fileScores,
+      symbolScores,
+      moduleScores
+    );
   }
 
   for (const term of termBuckets.weakTerms) {
@@ -104,9 +130,15 @@ export function buildStructuralContext(input: StructuralMatcherInput): Structura
   applyStructuralRelationBoosts(fileScores, input.queryLayer, symbolScores, moduleScores);
   applyNoisePenalties(fileScores);
 
-  const relevantFiles = sortAndLimitFileScores(fileScores, input.maxFiles).map((entry) => entry.value);
-  const relevantSymbols = sortAndLimitScores(symbolScores, input.maxSymbols).map((entry) => entry.value);
-  const relevantModules = sortAndLimitScores(moduleScores, input.maxModules).map((entry) => entry.value);
+  const relevantFiles = sortAndLimitFileScores(fileScores, input.maxFiles).map(
+    (entry) => entry.value
+  );
+  const relevantSymbols = sortAndLimitScores(symbolScores, input.maxSymbols).map(
+    (entry) => entry.value
+  );
+  const relevantModules = sortAndLimitScores(moduleScores, input.maxModules).map(
+    (entry) => entry.value
+  );
   const relationSeedPaths = dedupeAndSort([
     ...relevantFiles.slice(0, input.maxRelations),
     ...extractStructuralAnchors(fileScores).slice(0, input.maxRelations)
@@ -297,10 +329,14 @@ function applyWeakTokenTracking(
   for (const file of files) {
     let weakMatch = matchesText(file.relativePath, term, matchOptions, false);
     if (!weakMatch) {
-      weakMatch = file.symbols.some((symbol) => matchesText(symbol.name, term, matchOptions, false));
+      weakMatch = file.symbols.some((symbol) =>
+        matchesText(symbol.name, term, matchOptions, false)
+      );
     }
     if (!weakMatch) {
-      weakMatch = file.imports.some((entry) => matchesText(entry.source, term, matchOptions, false));
+      weakMatch = file.imports.some((entry) =>
+        matchesText(entry.source, term, matchOptions, false)
+      );
     }
     if (weakMatch) {
       bumpFileScore(fileScores, file.relativePath, 0, "weak");
@@ -516,7 +552,10 @@ function matchesDomainTerm(candidate: string, term: string, options: QueryMatchO
     return false;
   }
 
-  if (normalizedCandidate.includes(normalizedTerm) || normalizedTerm.includes(normalizedCandidate)) {
+  if (
+    normalizedCandidate.includes(normalizedTerm) ||
+    normalizedTerm.includes(normalizedCandidate)
+  ) {
     return true;
   }
 

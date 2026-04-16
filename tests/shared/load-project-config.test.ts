@@ -47,6 +47,7 @@ describe("loadProjectConfig", () => {
       configPath,
       JSON.stringify({
         docsDir: "engineering",
+        stateDir: ".graphmemo-state",
         logLevel: "debug"
       }),
       "utf8"
@@ -58,7 +59,7 @@ describe("loadProjectConfig", () => {
       workspaceRoot: workspace,
       docsDir: "engineering",
       knowledgeDir: "knowledge",
-      stateDir: ".graphmemo",
+      stateDir: ".graphmemo-state",
       logLevel: "debug"
     });
   });

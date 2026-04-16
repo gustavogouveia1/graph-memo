@@ -1,7 +1,10 @@
 import type { Command } from "commander";
 
 import type { ImportChatsUseCase } from "../../application/use-cases/import-chats.use-case";
-import { CHAT_IMPORT_PROVIDERS, type ChatImportProvider } from "../../core/chat-import/chat-import-provider";
+import {
+  CHAT_IMPORT_PROVIDERS,
+  type ChatImportProvider
+} from "../../core/chat-import/chat-import-provider";
 import { GraphMemoError } from "../../core/errors/graphmemo-error";
 import { printTaskExecution } from "../output/print-task-execution";
 

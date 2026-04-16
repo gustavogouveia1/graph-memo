@@ -35,9 +35,16 @@ describe("CLI e2e flow with realistic fixture", () => {
     }>;
 
     expect(manifest.indexedFilesCount).toBe(5);
-    expect(indexedFiles.map((file) => file.relativePath)).toContain("src/domain/commission-policy.ts");
+    expect(indexedFiles.map((file) => file.relativePath)).toContain(
+      "src/domain/commission-policy.ts"
+    );
 
-    const queryRun = await runCliCommand(config, ["query", workspace, "--symbol", "calculateCommission"]);
+    const queryRun = await runCliCommand(config, [
+      "query",
+      workspace,
+      "--symbol",
+      "calculateCommission"
+    ]);
     expect(queryRun.errors).toEqual([]);
     expect(queryRun.logs[0]).toContain("[SUCCESS] query:");
     const queryDetails = extractJsonDetails(queryRun.logs) as {
@@ -102,13 +109,46 @@ describe("CLI e2e flow with realistic fixture", () => {
     expect(contextDetails.relevantKnowledgeNotes).toEqual(
       expect.arrayContaining(["knowledge/features/2026-04-10-ajuste-comissao-premium.md"])
     );
-    expect(contextDetails.relevantKnowledgeNotes?.some((path) => path.startsWith("knowledge/imports/"))).toBe(
-      true
-    );
+    expect(
+      contextDetails.relevantKnowledgeNotes?.some((path) => path.startsWith("knowledge/imports/"))
+    ).toBe(true);
     expect(contextDetails.relevantAdrsAndDocs).toEqual(
       expect.arrayContaining(["docs/adr/ADR-001-commission-rounding-policy.md"])
     );
     expect((contextDetails.suggestedStartingPoints ?? []).length).toBeGreaterThan(0);
+  });
+
+  it("respeita stateDir customizado no fluxo index -> query", async () => {
+    const workspace = await createWorkspaceFromFixture(tempDirectories);
+    const config = {
+      ...createFixtureConfig(workspace),
+      stateDir: ".graphmemo-state"
+    };
+
+    const indexRun = await runCliCommand(config, ["index", workspace]);
+    expect(indexRun.errors).toEqual([]);
+    expect(indexRun.logs[0]).toContain("[SUCCESS] index:");
+
+    const manifestPath = join(workspace, ".graphmemo-state", "manifest.json");
+    const filesPath = join(workspace, ".graphmemo-state", "files.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as {
+      indexedFilesCount: number;
+    };
+    const indexedFiles = JSON.parse(await readFile(filesPath, "utf8")) as Array<{
+      relativePath: string;
+    }>;
+
+    expect(manifest.indexedFilesCount).toBeGreaterThan(0);
+    expect(indexedFiles.length).toBeGreaterThan(0);
+
+    const queryRun = await runCliCommand(config, [
+      "query",
+      workspace,
+      "--symbol",
+      "calculateCommission"
+    ]);
+    expect(queryRun.errors).toEqual([]);
+    expect(queryRun.logs[0]).toContain("[SUCCESS] query:");
   });
 });
 

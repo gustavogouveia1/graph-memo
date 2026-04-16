@@ -31,7 +31,9 @@ function createIndexedFilesFixture(): IndexedFile[] {
       size: 80,
       mtimeMs: 1710000000002,
       hash: "hash-3",
-      imports: [{ source: "./services/calc", isTypeOnly: false, name: "CalcService", kind: "value" }],
+      imports: [
+        { source: "./services/calc", isTypeOnly: false, name: "CalcService", kind: "value" }
+      ],
       exports: [{ name: "CalcService", kind: "value", exportedAs: "CalcService" }],
       symbols: []
     }
@@ -152,7 +154,9 @@ describe("LocalIndexQueryLayer", () => {
     const queryLayer = new LocalIndexQueryLayer(createAliasFixture());
 
     expect(
-      queryLayer.findFilesRelatedByImportExport("frontend/src/pages/financeiro/RelatorioComissoes.tsx")
+      queryLayer.findFilesRelatedByImportExport(
+        "frontend/src/pages/financeiro/RelatorioComissoes.tsx"
+      )
     ).toEqual({
       relativePath: "frontend/src/pages/financeiro/RelatorioComissoes.tsx",
       dependsOn: [

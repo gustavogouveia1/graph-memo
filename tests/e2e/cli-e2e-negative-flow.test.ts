@@ -25,7 +25,9 @@ describe("CLI e2e cenarios negativos", () => {
     const workspace = await createBareWorkspace(tempDirectories);
     const config = createFixtureConfig(workspace);
 
-    await expect(runCliCommand(config, ["context", workspace, "--task", "qualquer task", "--format", "json"])).rejects.toMatchObject({
+    await expect(
+      runCliCommand(config, ["context", workspace, "--task", "qualquer task", "--format", "json"])
+    ).rejects.toMatchObject({
       code: "INDEX_NOT_FOUND",
       message: expect.stringMatching(/graphmemo index/i)
     } as Partial<GraphMemoError>);
@@ -35,10 +37,12 @@ describe("CLI e2e cenarios negativos", () => {
     const workspace = await createBareWorkspace(tempDirectories);
     const config = createFixtureConfig(workspace);
 
-    await expect(runCliCommand(config, ["query", workspace, "--list-files"])).rejects.toMatchObject({
-      code: "INDEX_NOT_FOUND",
-      message: expect.stringMatching(/graphmemo index/i)
-    } as Partial<GraphMemoError>);
+    await expect(runCliCommand(config, ["query", workspace, "--list-files"])).rejects.toMatchObject(
+      {
+        code: "INDEX_NOT_FOUND",
+        message: expect.stringMatching(/graphmemo index/i)
+      } as Partial<GraphMemoError>
+    );
   });
 
   it("query com manifest corrompido retorna INDEX_CORRUPTED com instrucao --full", async () => {
@@ -49,10 +53,12 @@ describe("CLI e2e cenarios negativos", () => {
     await writeFile(join(stateDir, "manifest.json"), "{invalid-json", "utf8");
     await writeFile(join(stateDir, "files.json"), "[]", "utf8");
 
-    await expect(runCliCommand(config, ["query", workspace, "--list-files"])).rejects.toMatchObject({
-      code: "INDEX_CORRUPTED",
-      message: expect.stringMatching(/--full/i)
-    } as Partial<GraphMemoError>);
+    await expect(runCliCommand(config, ["query", workspace, "--list-files"])).rejects.toMatchObject(
+      {
+        code: "INDEX_CORRUPTED",
+        message: expect.stringMatching(/--full/i)
+      } as Partial<GraphMemoError>
+    );
   });
 
   it("context com files.json corrompido retorna INDEX_CORRUPTED com instrucao --full", async () => {
@@ -74,7 +80,14 @@ describe("CLI e2e cenarios negativos", () => {
     await writeFile(join(stateDir, "files.json"), "[broken", "utf8");
 
     await expect(
-      runCliCommand(config, ["context", workspace, "--task", "ajustar fluxo de indexacao", "--format", "json"])
+      runCliCommand(config, [
+        "context",
+        workspace,
+        "--task",
+        "ajustar fluxo de indexacao",
+        "--format",
+        "json"
+      ])
     ).rejects.toMatchObject({
       code: "INDEX_CORRUPTED",
       message: expect.stringMatching(/--full/i)
@@ -87,7 +100,13 @@ describe("CLI e2e cenarios negativos", () => {
     const invalidSource = join(workspace, "nao-existe-chat-export");
 
     try {
-      await runCliCommand(config, ["import-chats", "--source", invalidSource, "--provider", "generic"]);
+      await runCliCommand(config, [
+        "import-chats",
+        "--source",
+        invalidSource,
+        "--provider",
+        "generic"
+      ]);
       expect.fail("Esperava falha na importacao.");
     } catch (error: unknown) {
       expect(error).toBeInstanceOf(GraphMemoError);
@@ -114,16 +133,20 @@ describe("CLI e2e cenarios negativos", () => {
     const workspace = await createWorkspaceFromFixture(tempDirectories);
     const config = createFixtureConfig(workspace);
 
-    await expect(runCliCommand(config, ["query", workspace, "--symbol", ""])).rejects.toMatchObject({
-      code: "QUERY_INVALID_INPUT"
-    } as Partial<GraphMemoError>);
+    await expect(runCliCommand(config, ["query", workspace, "--symbol", ""])).rejects.toMatchObject(
+      {
+        code: "QUERY_INVALID_INPUT"
+      } as Partial<GraphMemoError>
+    );
   });
 
   it("context com task apenas em branco retorna CONTEXT_INVALID_INPUT", async () => {
     const workspace = await createWorkspaceFromFixture(tempDirectories);
     const config = createFixtureConfig(workspace);
 
-    await expect(runCliCommand(config, ["context", workspace, "--task", "   ", "--format", "json"])).rejects.toMatchObject({
+    await expect(
+      runCliCommand(config, ["context", workspace, "--task", "   ", "--format", "json"])
+    ).rejects.toMatchObject({
       code: "CONTEXT_INVALID_INPUT",
       message: expect.stringMatching(/--task/i)
     } as Partial<GraphMemoError>);
@@ -134,7 +157,16 @@ describe("CLI e2e cenarios negativos", () => {
     const config = createFixtureConfig(workspace);
 
     await expect(
-      runCliCommand(config, ["context", workspace, "--task", "task valida", "--symbol", "", "--format", "json"])
+      runCliCommand(config, [
+        "context",
+        workspace,
+        "--task",
+        "task valida",
+        "--symbol",
+        "",
+        "--format",
+        "json"
+      ])
     ).rejects.toMatchObject({
       code: "CONTEXT_INVALID_INPUT"
     } as Partial<GraphMemoError>);

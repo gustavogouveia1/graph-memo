@@ -83,22 +83,26 @@ Contrato de erro (padrao):
 
 ### Fluxo manual de demonstracao pela UI
 
-1) Acesse a aba **Index**
+1. Acesse a aba **Index**
+
 - informe `workspace path` (ou clique em `Usar fixture demo`)
 - opcional: marque `Dry-run` / `Full reindex`
 - clique `Executar index`
 
-2) Acesse a aba **Query**
+2. Acesse a aba **Query**
+
 - use o mesmo `workspace path`
 - preencha ao menos um filtro (`symbol`, `module`, `file`, `related-to` ou `list-files`)
 - clique `Executar query`
 
-3) Acesse a aba **Import Chats**
+3. Acesse a aba **Import Chats**
+
 - informe `workspace path` e `source path`
 - selecione provider (`generic`, `claude`, `cursor`, `chatgpt`)
 - clique `Importar chats`
 
-4) Acesse a aba **Context Builder**
+4. Acesse a aba **Context Builder**
+
 - informe `workspace path`
 - preencha `task` e filtros opcionais (`symbol`, `module`)
 - escolha formato (`markdown` ou `json`)
@@ -108,15 +112,15 @@ Contrato de erro (padrao):
 ### Comportamento atual do `index`
 
 - Indexa recursivamente arquivos `.ts`, `.tsx`, `.js` e `.jsx`
-- Ignora diretorios comuns nao relevantes (`node_modules`, `dist`, `build`, `coverage`, `.git`, `.graphmemo`)
+- Ignora diretorios comuns nao relevantes (`node_modules`, `dist`, `build`, `coverage`, `.git` e o `stateDir` configurado)
 - Extrai imports, exports e simbolos nomeados (funcoes e classes)
-- Persiste manifest e lista de arquivos em `.graphmemo/manifest.json` e `.graphmemo/files.json`
+- Persiste manifest e lista de arquivos em `<stateDir>/manifest.json` e `<stateDir>/files.json` (default: `.graphmemo/`)
 - Suporta `--full` para reindexacao completa e modo incremental por `mtime`/`size`/`hash`
 - Suporta `--dry-run` para validar execucao sem gravar arquivos
 
 ### Comportamento atual do `query`
 
-- Le o indice persistido em `.graphmemo/manifest.json` e `.graphmemo/files.json`
+- Le o indice persistido em `<stateDir>/manifest.json` e `<stateDir>/files.json` (default: `.graphmemo/`)
 - Modela relacoes basicas e auditaveis:
   - `file_defines_symbol`
   - `file_imports_module`
@@ -136,13 +140,13 @@ Contrato de erro (padrao):
 
 Mensagens seguem o padrao `[CODIGO] descricao` no stderr. Abaixo, causas e recuperacao.
 
-| Codigo | O que fazer |
-| --- | --- |
-| `INDEX_NOT_FOUND` | Rode `graphmemo index <caminho-do-projeto>` no diretorio que deve conter `.graphmemo/`. |
-| `INDEX_CORRUPTED` | Apague ou regenere o estado: `graphmemo index <caminho> --full`. |
-| `QUERY_INVALID_INPUT` | Informe ao menos um filtro (`--symbol`, `--file`, `--module`, `--related-to` ou `--list-files`); valores de filtro nao podem ser vazios. |
-| `CONTEXT_INVALID_INPUT` | Use `--task` com texto nao vazio; `--format` deve ser `markdown` ou `json`; filtros opcionais nao podem ser vazios. |
-| `CHAT_SOURCE_NOT_FOUND` | Confira o caminho passado em `--source` (arquivo ou diretorio existente). |
+| Codigo                  | O que fazer                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `INDEX_NOT_FOUND`       | Rode `graphmemo index <caminho-do-projeto>` no diretorio que deve conter o `stateDir` configurado (default: `.graphmemo/`).              |
+| `INDEX_CORRUPTED`       | Apague ou regenere o estado: `graphmemo index <caminho> --full`.                                                                         |
+| `QUERY_INVALID_INPUT`   | Informe ao menos um filtro (`--symbol`, `--file`, `--module`, `--related-to` ou `--list-files`); valores de filtro nao podem ser vazios. |
+| `CONTEXT_INVALID_INPUT` | Use `--task` com texto nao vazio; `--format` deve ser `markdown` ou `json`; filtros opcionais nao podem ser vazios.                      |
+| `CHAT_SOURCE_NOT_FOUND` | Confira o caminho passado em `--source` (arquivo ou diretorio existente).                                                                |
 
 Exemplos:
 
@@ -182,7 +186,7 @@ npm run dev -- import-chats --source ./exports --provider claude --dry-run
   - descarta tokens curtos fracos (mantendo termos curtos fortes como `csv`)
   - nao gera abreviacoes automaticas fracas
 - Cruza task com:
-  - indice estrutural persistido em `.graphmemo/`
+  - indice estrutural persistido em `<stateDir>/` (default: `.graphmemo/`)
   - query layer local (simbolos, modulos, relacoes import/export)
   - notas em `knowledge/` (incluindo `knowledge/imports/`)
   - ADRs e regras em `docs/`
@@ -241,7 +245,7 @@ npm run dev -- index tests/fixtures/sample-workspace
 Saida esperada (resumo):
 
 - status `SUCCESS`
-- `.graphmemo/manifest.json` e `.graphmemo/files.json` gerados dentro da fixture
+- `<stateDir>/manifest.json` e `<stateDir>/files.json` gerados dentro da fixture (default: `.graphmemo/`)
 - `indexedFilesCount` maior que zero
 
 ### 3) Consultar simbolo no indice
@@ -328,7 +332,7 @@ Campos suportados:
 
 - `docsDir`
 - `knowledgeDir`
-- `stateDir`
+- `stateDir` (default: `.graphmemo`)
 - `logLevel` (`debug`, `info`, `warn`, `error`)
 
 ## Estado atual

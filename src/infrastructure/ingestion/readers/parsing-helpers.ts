@@ -2,7 +2,11 @@ import { basename, extname } from "node:path";
 
 import type { ChatImportProvider } from "../../../core/chat-import/chat-import-provider";
 import type { ImportedChat } from "../../../core/chat-import/imported-chat";
-import { CHAT_MESSAGE_ROLES, type ImportedMessage, type ImportedMessageRole } from "../../../core/chat-import/imported-message";
+import {
+  CHAT_MESSAGE_ROLES,
+  type ImportedMessage,
+  type ImportedMessageRole
+} from "../../../core/chat-import/imported-message";
 
 export interface ReaderParseInput {
   provider: ChatImportProvider;

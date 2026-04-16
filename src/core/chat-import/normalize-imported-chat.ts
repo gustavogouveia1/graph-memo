@@ -29,7 +29,11 @@ export function normalizeImportedChat(input: NormalizeImportedChatInput): Normal
     "#domain/data",
     "#type/feature"
   ];
-  const related = ["[[ADR-001]]", "[[Decision:Stack inicial da CLI Graph-Memo]]", "[[Feature:Ingestao de chats v1]]"];
+  const related = [
+    "[[ADR-001]]",
+    "[[Decision:Stack inicial da CLI Graph-Memo]]",
+    "[[Feature:Ingestao de chats v1]]"
+  ];
 
   return {
     title,
@@ -73,7 +77,8 @@ function renderNote(input: {
       ? "_Nenhuma mensagem valida encontrada no export._"
       : input.messages
           .map((message, index) => {
-            const timestampSuffix = message.timestamp === undefined ? "" : ` (${message.timestamp})`;
+            const timestampSuffix =
+              message.timestamp === undefined ? "" : ` (${message.timestamp})`;
             return `### ${index + 1}. ${normalizeRole(message.role)}${timestampSuffix}\n\n${message.content.trim()}\n`;
           })
           .join("\n");

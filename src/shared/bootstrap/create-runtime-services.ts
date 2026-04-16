@@ -23,8 +23,8 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
   const logger = new ConsoleLogger(config.logLevel);
   const fileSystem = new NodeFileSystem();
   const sourceCodeParser = new TypeScriptSourceCodeParser();
-  const indexStore = new FileIndexStore();
-  const queryReader = new FileIndexQueryReader();
+  const indexStore = new FileIndexStore(config.stateDir);
+  const queryReader = new FileIndexQueryReader(config.stateDir);
   const chatImportReader = new FileChatImportReader();
   const knowledgeWriter = new FileKnowledgeWriter();
   const knowledgeContextReader = new FileKnowledgeContextReader(fileSystem, {
@@ -33,7 +33,13 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
   });
 
   return {
-    runIndexUseCase: new RunIndexUseCase(logger, fileSystem, sourceCodeParser, indexStore),
+    runIndexUseCase: new RunIndexUseCase(
+      logger,
+      fileSystem,
+      sourceCodeParser,
+      indexStore,
+      config.stateDir
+    ),
     queryIndexUseCase: new QueryIndexUseCase(logger, queryReader),
     buildContextUseCase: new BuildContextUseCase(logger, queryReader, knowledgeContextReader),
     importChatsUseCase: new ImportChatsUseCase(

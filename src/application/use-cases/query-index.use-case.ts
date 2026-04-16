@@ -63,11 +63,13 @@ export class QueryIndexUseCase {
       if (input.symbol !== undefined) {
         details.appliedFilters.push("symbol");
         details.filesBySymbol = queryLayer.findFilesBySymbol(input.symbol, matchOptions);
-        details.exportsBySymbol = queryLayer.findExportsBySymbol(input.symbol, matchOptions).map((entry) => ({
-          filePath: entry.filePath,
-          exportName: entry.exportEntry.exportedAs ?? entry.exportEntry.name,
-          kind: entry.exportEntry.kind
-        }));
+        details.exportsBySymbol = queryLayer
+          .findExportsBySymbol(input.symbol, matchOptions)
+          .map((entry) => ({
+            filePath: entry.filePath,
+            exportName: entry.exportEntry.exportedAs ?? entry.exportEntry.name,
+            kind: entry.exportEntry.kind
+          }));
       }
 
       if (input.file !== undefined) {
@@ -77,7 +79,10 @@ export class QueryIndexUseCase {
 
       if (input.moduleSource !== undefined) {
         details.appliedFilters.push("module");
-        details.filesImportingModule = queryLayer.findFilesImportingModule(input.moduleSource, matchOptions);
+        details.filesImportingModule = queryLayer.findFilesImportingModule(
+          input.moduleSource,
+          matchOptions
+        );
       }
 
       if (input.relatedTo !== undefined) {
@@ -108,12 +113,9 @@ export class QueryIndexUseCase {
         error: error instanceof Error ? error.message : "erro-desconhecido"
       });
 
-      throw new GraphMemoError(
-        "QUERY_FAILED",
-        "Falha ao consultar o indice local.",
-        error,
-        { rootPath }
-      );
+      throw new GraphMemoError("QUERY_FAILED", "Falha ao consultar o indice local.", error, {
+        rootPath
+      });
     }
   }
 

@@ -2,7 +2,10 @@ import type { BuiltContextPackage } from "./context-types";
 
 export type ContextOutputFormat = "markdown" | "json";
 
-export function formatBuiltContext(contextPackage: BuiltContextPackage, format: ContextOutputFormat): string {
+export function formatBuiltContext(
+  contextPackage: BuiltContextPackage,
+  format: ContextOutputFormat
+): string {
   if (format === "json") {
     return JSON.stringify(contextPackage, null, 2);
   }

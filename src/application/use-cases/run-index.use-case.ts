@@ -8,6 +8,11 @@ import type { SourceCodeParserPort } from "../ports/source-code-parser";
 import { GraphMemoError } from "../../core/errors/graphmemo-error";
 import type { IndexedFile } from "../../core/indexing/indexed-file";
 import type { TaskExecution } from "../../core/tasks/task-execution";
+import {
+  DEFAULT_STATE_DIR,
+  resolveStateDirectoryForDisplay,
+  resolveStateDirectoryForIgnore
+} from "../../shared/config/state-index-paths";
 
 export interface RunIndexInput {
   targetPath: string;
@@ -32,8 +37,7 @@ export const IGNORED_INDEX_DIRECTORIES = [
   "dist",
   "build",
   "coverage",
-  ".git",
-  ".graphmemo"
+  ".git"
 ] as const;
 
 export class RunIndexUseCase {
@@ -41,7 +45,8 @@ export class RunIndexUseCase {
     private readonly logger: Logger,
     private readonly fileSystem: FileSystemPort,
     private readonly sourceCodeParser: SourceCodeParserPort,
-    private readonly indexStore: IndexStorePort
+    private readonly indexStore: IndexStorePort,
+    private readonly stateDir: string = DEFAULT_STATE_DIR
   ) {}
 
   async execute(input: RunIndexInput): Promise<TaskExecution> {
@@ -58,9 +63,13 @@ export class RunIndexUseCase {
     try {
       const previousIndex = input.fullReindex ? null : await this.indexStore.load(rootPath);
       const previousByPath = this.createPreviousFileMap(previousIndex);
+      const ignoredDirectories = [
+        ...IGNORED_INDEX_DIRECTORIES,
+        resolveStateDirectoryForIgnore(this.stateDir)
+      ];
       const absoluteFilePaths = await this.fileSystem.listFilesRecursively(
         rootPath,
-        [...IGNORED_INDEX_DIRECTORIES]
+        ignoredDirectories
       );
 
       const indexedFiles: IndexedFile[] = [];
@@ -70,7 +79,11 @@ export class RunIndexUseCase {
       for (const absoluteFilePath of absoluteFilePaths) {
         const extension = extname(absoluteFilePath).toLowerCase();
 
-        if (!SUPPORTED_INDEX_EXTENSIONS.includes(extension as (typeof SUPPORTED_INDEX_EXTENSIONS)[number])) {
+        if (
+          !SUPPORTED_INDEX_EXTENSIONS.includes(
+            extension as (typeof SUPPORTED_INDEX_EXTENSIONS)[number]
+          )
+        ) {
           continue;
         }
 
@@ -123,7 +136,7 @@ export class RunIndexUseCase {
         reusedFilesCount,
         parsedFilesCount,
         supportedExtensions: [...SUPPORTED_INDEX_EXTENSIONS],
-        outputDirectory: ".graphmemo",
+        outputDirectory: resolveStateDirectoryForDisplay(this.stateDir),
         incremental: !input.fullReindex,
         dryRun: input.dryRun
       };
@@ -182,7 +195,9 @@ export class RunIndexUseCase {
 
   private buildSuccessMessage(summary: RunIndexSummary): string {
     const mode = summary.incremental ? "incremental" : "full";
-    const persistence = summary.dryRun ? "sem persistencia (--dry-run)" : "persistido em .graphmemo/";
+    const persistence = summary.dryRun
+      ? "sem persistencia (--dry-run)"
+      : `persistido em ${summary.outputDirectory}`;
 
     return `Indexacao ${mode} concluida: ${summary.indexedFilesCount} arquivo(s), ${summary.parsedFilesCount} parseado(s), ${summary.reusedFilesCount} reaproveitado(s), ${persistence}.`;
   }

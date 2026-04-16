@@ -71,7 +71,11 @@ export class CursorChatImportReader implements ProviderReader {
     ];
   }
 
-  private parseCandidate(candidate: unknown, sourceFile: string, index: number): ImportedChat | null {
+  private parseCandidate(
+    candidate: unknown,
+    sourceFile: string,
+    index: number
+  ): ImportedChat | null {
     if (!isRecord(candidate)) {
       return null;
     }
