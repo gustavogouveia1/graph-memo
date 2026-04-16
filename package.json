@@ -9,7 +9,9 @@
   },
   "scripts": {
     "dev": "tsx src/cli/main.ts",
+    "dev:web": "tsx src/web/main.ts",
     "start": "node dist/cli/main.js",
+    "start:web": "node dist/web/main.js",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
