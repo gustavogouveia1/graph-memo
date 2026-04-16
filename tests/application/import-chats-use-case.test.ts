@@ -46,7 +46,8 @@ describe("ImportChatsUseCase", () => {
       createLoggerStub(),
       reader,
       writer,
-      "/tmp/project/knowledge"
+      "knowledge",
+      "/tmp/project"
     );
 
     const result = await useCase.execute({
@@ -85,7 +86,8 @@ describe("ImportChatsUseCase", () => {
       createLoggerStub(),
       reader,
       writer,
-      "/tmp/project/knowledge"
+      "knowledge",
+      "/tmp/project"
     );
 
     const result = await useCase.execute({

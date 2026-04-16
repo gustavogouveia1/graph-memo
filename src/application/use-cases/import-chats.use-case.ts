@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 
 import type { ChatImportReaderPort } from "../ports/chat-import-reader";
 import type { KnowledgeWriterPort } from "../ports/knowledge-writer";
@@ -12,6 +12,7 @@ export interface ImportChatsInput {
   source: string;
   provider: ChatImportProvider;
   dryRun: boolean;
+  workspacePath?: string;
 }
 
 interface ImportChatsSummary {
@@ -33,12 +34,15 @@ export class ImportChatsUseCase {
     private readonly logger: Logger,
     private readonly chatImportReader: ChatImportReaderPort,
     private readonly knowledgeWriter: KnowledgeWriterPort,
-    private readonly knowledgeRootPath: string
+    private readonly knowledgeDirectory: string,
+    private readonly defaultWorkspaceRoot: string
   ) {}
 
   async execute(input: ImportChatsInput): Promise<TaskExecution> {
     this.validateInput(input);
     const sourcePath = resolve(input.source);
+    const workspaceRoot = resolve(input.workspacePath ?? this.defaultWorkspaceRoot);
+    const knowledgeRootPath = join(workspaceRoot, this.knowledgeDirectory);
     const importedAt = new Date().toISOString();
 
     this.logger.info("Iniciando importacao de chats para knowledge/", {
@@ -65,7 +69,7 @@ export class ImportChatsUseCase {
       const persistedNotes =
         input.dryRun || normalizedNotes.length === 0
           ? []
-          : await this.knowledgeWriter.writeChatNotes(this.knowledgeRootPath, normalizedNotes);
+          : await this.knowledgeWriter.writeChatNotes(knowledgeRootPath, normalizedNotes);
 
       const summary: ImportChatsSummary = {
         sourcePath,
@@ -77,7 +81,7 @@ export class ImportChatsUseCase {
         importedChatsCount: readResult.chats.length,
         generatedNotesCount: normalizedNotes.length,
         persistedNotesCount: persistedNotes.length,
-        outputDirectory: `${this.knowledgeRootPath}/imports`,
+        outputDirectory: `${knowledgeRootPath}/imports`,
         dryRun: input.dryRun
       };
 
