@@ -35,14 +35,7 @@ export class FileMemoryQueryReader implements MemoryQueryReaderPort {
     let tasksRaw: string;
 
     try {
-      [
-        metaRaw,
-        nodesRaw,
-        edgesRaw,
-        factsRaw,
-        eventsRaw,
-        tasksRaw
-      ] = await Promise.all([
+      [metaRaw, nodesRaw, edgesRaw, factsRaw, eventsRaw, tasksRaw] = await Promise.all([
         readFile(metaFilePath, "utf8"),
         readFile(nodesFilePath, "utf8"),
         readFile(edgesFilePath, "utf8"),
@@ -138,4 +131,3 @@ function isMemoryMeta(value: unknown): value is MemoryMeta {
     typeof candidate.lastUpdatedAt === "string"
   );
 }
-

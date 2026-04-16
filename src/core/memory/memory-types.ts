@@ -1,11 +1,4 @@
-export type MemoryNodeType =
-  | "file"
-  | "symbol"
-  | "concept"
-  | "task"
-  | "note"
-  | "agent"
-  | "other";
+export type MemoryNodeType = "file" | "symbol" | "concept" | "task" | "note" | "agent" | "other";
 
 export type MemoryRelationType =
   | "references"
@@ -83,4 +76,3 @@ export interface MemoryMeta {
 }
 
 export const MEMORY_SCHEMA_VERSION = "1";
-

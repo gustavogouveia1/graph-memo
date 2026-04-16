@@ -34,4 +34,3 @@ export function resolveMemoryStatePaths(rootPath: string, stateDir: string): Mem
     tasksFilePath: join(memoryDirectoryPath, MEMORY_TASKS_FILE_NAME)
   };
 }
-

@@ -108,7 +108,11 @@ describe("FileMemoryQueryReader", () => {
     const statePath = join(workspace, ".graphmemo", "memory");
     await mkdir(statePath, { recursive: true });
 
-    await writeFile(join(statePath, "meta.json"), `{"schemaVersion":"${MEMORY_SCHEMA_VERSION}"`, "utf8");
+    await writeFile(
+      join(statePath, "meta.json"),
+      `{"schemaVersion":"${MEMORY_SCHEMA_VERSION}"`,
+      "utf8"
+    );
     await writeFile(join(statePath, "nodes.json"), JSON.stringify([], null, 2), "utf8");
     await writeFile(join(statePath, "edges.json"), JSON.stringify([], null, 2), "utf8");
     await writeFile(join(statePath, "facts.json"), JSON.stringify([], null, 2), "utf8");
@@ -158,4 +162,3 @@ describe("FileMemoryQueryReader", () => {
     );
   });
 });
-

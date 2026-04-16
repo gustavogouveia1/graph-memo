@@ -18,21 +18,15 @@ export class FileMemoryStore implements MemoryStorePort {
         tasksFilePath
       } = resolveMemoryStatePaths(rootPath, this.stateDir);
 
-      const [
-        metaContent,
-        nodesContent,
-        edgesContent,
-        factsContent,
-        eventsContent,
-        tasksContent
-      ] = await Promise.all([
-        readFile(metaFilePath, "utf8"),
-        readFile(nodesFilePath, "utf8"),
-        readFile(edgesFilePath, "utf8"),
-        readFile(factsFilePath, "utf8"),
-        readFile(eventsFilePath, "utf8"),
-        readFile(tasksFilePath, "utf8")
-      ]);
+      const [metaContent, nodesContent, edgesContent, factsContent, eventsContent, tasksContent] =
+        await Promise.all([
+          readFile(metaFilePath, "utf8"),
+          readFile(nodesFilePath, "utf8"),
+          readFile(edgesFilePath, "utf8"),
+          readFile(factsFilePath, "utf8"),
+          readFile(eventsFilePath, "utf8"),
+          readFile(tasksFilePath, "utf8")
+        ]);
 
       return {
         meta: JSON.parse(metaContent),
@@ -69,4 +63,3 @@ export class FileMemoryStore implements MemoryStorePort {
     ]);
   }
 }
-

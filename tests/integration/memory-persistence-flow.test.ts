@@ -85,12 +85,8 @@ describe("Memory persistence flow integration", () => {
 
     expect(loaded.meta.schemaVersion).toBe(MEMORY_SCHEMA_VERSION);
 
-    const metaRaw = await readFile(
-      join(workspace, customStateDir, "memory", "meta.json"),
-      "utf8"
-    );
+    const metaRaw = await readFile(join(workspace, customStateDir, "memory", "meta.json"), "utf8");
     const metaJson = JSON.parse(metaRaw) as { schemaVersion: string };
     expect(metaJson.schemaVersion).toBe(MEMORY_SCHEMA_VERSION);
   });
 });
-

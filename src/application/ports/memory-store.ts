@@ -20,4 +20,3 @@ export interface MemoryStorePort {
   load(rootPath: string): Promise<MemoryState | null>;
   save(rootPath: string, state: MemoryState): Promise<void>;
 }
-
