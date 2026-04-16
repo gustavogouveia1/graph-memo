@@ -79,22 +79,18 @@ export class BuildContextUseCase {
       ]);
       const queryLayer = new LocalIndexQueryLayer(storedIndex.files);
       const filters: ContextBuildFilters = {};
-      const extraTerms: string[] = [];
 
       if (input.symbol !== undefined) {
         filters.symbol = input.symbol;
-        extraTerms.push(input.symbol);
       }
       if (input.file !== undefined) {
         filters.file = input.file;
-        extraTerms.push(input.file);
       }
       if (input.moduleSource !== undefined) {
         filters.moduleSource = input.moduleSource;
-        extraTerms.push(input.moduleSource);
       }
 
-      const extractedTerms = extractTaskTerms(task, extraTerms);
+      const extractedTerms = extractTaskTerms(task, []);
       const structuralContext = buildStructuralContext({
         task,
         terms: extractedTerms,

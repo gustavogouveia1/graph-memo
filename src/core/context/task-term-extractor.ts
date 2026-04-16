@@ -37,13 +37,15 @@ const STOP_WORDS = new Set([
   "feature"
 ]);
 
-export function extractTaskTerms(task: string, extraTerms: string[]): string[] {
-  const combined = [task, ...extraTerms].join(" ");
-  const normalized = normalizeText(combined);
-  const parts = normalized.split(/[^a-z0-9_./-]+/g).map((part) => part.trim());
-  const uniqueTerms = new Set<string>();
+const MIN_TERM_LENGTH = 4;
+const STRONG_SHORT_TERMS = new Set(["csv", "api", "sql", "pdf", "xml", "jwt", "url"]);
 
-  for (const part of parts) {
+export function extractTaskTerms(task: string, extraTerms: string[]): string[] {
+  const uniqueTerms = new Set<string>();
+  const normalizedTask = normalizeText(task);
+  const taskParts = normalizedTask.split(/[^a-z0-9_./-]+/g).map((part) => part.trim());
+
+  for (const part of taskParts) {
     const clean = trimBoundaryPunctuation(part);
     if (clean.length === 0) {
       continue;
@@ -51,14 +53,19 @@ export function extractTaskTerms(task: string, extraTerms: string[]): string[] {
     if (STOP_WORDS.has(clean)) {
       continue;
     }
-    if (clean.length < 3 && !clean.includes("/") && !clean.includes(".")) {
+    if (!isStrongTerm(clean)) {
       continue;
     }
     uniqueTerms.add(clean);
+  }
 
-    if (/^[a-z]+$/.test(clean) && clean.length >= 7) {
-      uniqueTerms.add(clean.slice(0, 3));
+  for (const extraTerm of extraTerms) {
+    const normalized = normalizeText(extraTerm);
+    const clean = trimBoundaryPunctuation(normalized);
+    if (clean.length === 0) {
+      continue;
     }
+    uniqueTerms.add(clean);
   }
 
   return [...uniqueTerms].sort((left, right) => {
@@ -79,4 +86,16 @@ function normalizeText(value: string): string {
 
 function trimBoundaryPunctuation(value: string): string {
   return value.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
+}
+
+function isStrongTerm(term: string): boolean {
+  if (term.includes("/") || term.includes(".")) {
+    return true;
+  }
+
+  if (STRONG_SHORT_TERMS.has(term)) {
+    return true;
+  }
+
+  return term.length >= MIN_TERM_LENGTH;
 }

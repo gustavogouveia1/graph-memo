@@ -38,6 +38,54 @@ function createIndexedFilesFixture(): IndexedFile[] {
   ];
 }
 
+function createAliasFixture(): IndexedFile[] {
+  return [
+    {
+      relativePath: "frontend/src/pages/financeiro/RelatorioComissoes.tsx",
+      extension: ".tsx",
+      size: 180,
+      mtimeMs: 1710000000100,
+      hash: "alias-1",
+      imports: [
+        {
+          source: "@/services/financeiro/comissoes-service",
+          isTypeOnly: false,
+          name: "ComissoesService",
+          kind: "value"
+        },
+        {
+          source: "~/components/financeiro/FiltrosPeriodoStatus",
+          isTypeOnly: false,
+          name: "FiltrosPeriodoStatus",
+          kind: "value"
+        }
+      ],
+      exports: [{ name: "RelatorioComissoes", kind: "function", isDefault: true }],
+      symbols: [{ name: "RelatorioComissoes", kind: "function" }]
+    },
+    {
+      relativePath: "frontend/src/services/financeiro/comissoes-service.ts",
+      extension: ".ts",
+      size: 120,
+      mtimeMs: 1710000000101,
+      hash: "alias-2",
+      imports: [],
+      exports: [{ name: "ComissoesService", kind: "class", isDefault: false }],
+      symbols: [{ name: "ComissoesService", kind: "class" }]
+    },
+    {
+      relativePath: "frontend/src/components/financeiro/FiltrosPeriodoStatus/index.tsx",
+      extension: ".tsx",
+      size: 120,
+      mtimeMs: 1710000000102,
+      hash: "alias-3",
+      imports: [],
+      exports: [{ name: "FiltrosPeriodoStatus", kind: "function", isDefault: true }],
+      symbols: [{ name: "FiltrosPeriodoStatus", kind: "function" }]
+    }
+  ];
+}
+
 describe("LocalIndexQueryLayer", () => {
   it("consulta simbolos definidos, exports e imports", () => {
     const queryLayer = new LocalIndexQueryLayer(createIndexedFilesFixture());
@@ -98,5 +146,20 @@ describe("LocalIndexQueryLayer", () => {
         expect.objectContaining({ type: "file_exports_symbol", filePath: "src/services/calc.ts" })
       ])
     );
+  });
+
+  it("resolve relacoes com aliases comuns e index files", () => {
+    const queryLayer = new LocalIndexQueryLayer(createAliasFixture());
+
+    expect(
+      queryLayer.findFilesRelatedByImportExport("frontend/src/pages/financeiro/RelatorioComissoes.tsx")
+    ).toEqual({
+      relativePath: "frontend/src/pages/financeiro/RelatorioComissoes.tsx",
+      dependsOn: [
+        "frontend/src/components/financeiro/FiltrosPeriodoStatus/index.tsx",
+        "frontend/src/services/financeiro/comissoes-service.ts"
+      ],
+      importedBy: []
+    });
   });
 });
