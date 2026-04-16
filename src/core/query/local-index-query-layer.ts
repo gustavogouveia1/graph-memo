@@ -190,20 +190,71 @@ export class LocalIndexQueryLayer {
   }
 
   private resolveImportSource(importerPath: string, source: string): string[] {
-    if (!source.startsWith(".")) {
-      return [];
+    if (source.startsWith(".")) {
+      const normalizedBasePath = join(dirname(importerPath), source).split("\\").join("/");
+      return this.expandPathCandidates(normalizedBasePath).filter((candidate) => this.indexedPaths.has(candidate));
     }
 
-    const basePath = join(dirname(importerPath), source).split("\\").join("/");
-    const withExtension = extname(basePath) !== "" ? [basePath] : [];
+    const aliasCandidates = this.resolveAliasImportSource(source);
+    return aliasCandidates.filter((candidate) => this.indexedPaths.has(candidate));
+  }
 
-    const candidates = extname(basePath) === ""
-      ? [
-          ...SUPPORTED_INDEX_EXTENSIONS.map((extension) => `${basePath}${extension}`),
-          ...SUPPORTED_INDEX_EXTENSIONS.map((extension) => `${basePath}/index${extension}`)
-        ]
-      : withExtension;
+  private resolveAliasImportSource(source: string): string[] {
+    const normalizedSource = source.replace(/\\/g, "/");
+    const baseCandidates = new Set<string>();
 
-    return candidates.filter((candidate) => this.indexedPaths.has(candidate));
+    if (normalizedSource.startsWith("@/") || normalizedSource.startsWith("~/")) {
+      const withoutPrefix = normalizedSource.slice(2);
+      baseCandidates.add(withoutPrefix);
+      baseCandidates.add(`src/${withoutPrefix}`);
+      baseCandidates.add(`frontend/src/${withoutPrefix}`);
+      baseCandidates.add(`backend/src/${withoutPrefix}`);
+    }
+
+    if (normalizedSource.startsWith("/")) {
+      const withoutPrefix = normalizedSource.slice(1);
+      baseCandidates.add(withoutPrefix);
+      baseCandidates.add(`src/${withoutPrefix}`);
+    }
+
+    if (normalizedSource.startsWith("src/")) {
+      baseCandidates.add(normalizedSource);
+    }
+
+    if (/^@[^/]+\/.+/.test(normalizedSource)) {
+      const [, withoutScope] = normalizedSource.split("/", 2);
+      if (withoutScope !== undefined && withoutScope.length > 0) {
+        const rest = normalizedSource.slice(normalizedSource.indexOf("/") + 1);
+        baseCandidates.add(rest);
+        baseCandidates.add(`src/${rest}`);
+      }
+    }
+
+    const expanded = new Set<string>();
+    for (const candidate of baseCandidates) {
+      for (const expandedCandidate of this.expandPathCandidates(candidate)) {
+        expanded.add(expandedCandidate);
+      }
+    }
+
+    return [...expanded];
+  }
+
+  private expandPathCandidates(basePath: string): string[] {
+    const normalizedBasePath = basePath.replace(/\\/g, "/").replace(/\/+$/, "");
+    const hasExtension = extname(normalizedBasePath) !== "";
+    const baseWithoutExtension = hasExtension
+      ? normalizedBasePath.slice(0, -extname(normalizedBasePath).length)
+      : normalizedBasePath;
+    const candidates = new Set<string>();
+
+    candidates.add(normalizedBasePath);
+
+    for (const extension of SUPPORTED_INDEX_EXTENSIONS) {
+      candidates.add(`${baseWithoutExtension}${extension}`);
+      candidates.add(`${baseWithoutExtension}/index${extension}`);
+    }
+
+    return [...candidates];
   }
 }
