@@ -9,6 +9,8 @@ import { FileKnowledgeWriter } from "../../infrastructure/knowledge/file-knowled
 import { ConsoleLogger } from "../../infrastructure/logging/console-logger";
 import { TypeScriptSourceCodeParser } from "../../infrastructure/parsing/typescript/typescript-source-code-parser";
 import { FileIndexStore } from "../../infrastructure/persistence/file-index-store";
+import { FileMemoryQueryReader } from "../../infrastructure/persistence/file-memory-query-reader";
+import { FileMemoryStore } from "../../infrastructure/persistence/file-memory-store";
 import { FileIndexQueryReader } from "../../infrastructure/persistence/file-index-query-reader";
 import type { ProjectConfig } from "../config/project-config";
 
@@ -17,6 +19,8 @@ export interface RuntimeServices {
   queryIndexUseCase: QueryIndexUseCase;
   buildContextUseCase: BuildContextUseCase;
   importChatsUseCase: ImportChatsUseCase;
+  memoryStore: FileMemoryStore;
+  memoryQueryReader: FileMemoryQueryReader;
 }
 
 export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
@@ -25,6 +29,8 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
   const sourceCodeParser = new TypeScriptSourceCodeParser();
   const indexStore = new FileIndexStore(config.stateDir);
   const queryReader = new FileIndexQueryReader(config.stateDir);
+  const memoryStore = new FileMemoryStore(config.stateDir);
+  const memoryQueryReader = new FileMemoryQueryReader(config.stateDir);
   const chatImportReader = new FileChatImportReader();
   const knowledgeWriter = new FileKnowledgeWriter();
   const knowledgeContextReader = new FileKnowledgeContextReader(fileSystem, {
@@ -48,6 +54,8 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
       knowledgeWriter,
       config.knowledgeDir,
       config.workspaceRoot
-    )
+    ),
+    memoryStore,
+    memoryQueryReader
   };
 }
