@@ -108,12 +108,20 @@ npm run dev -- import-chats --source ./exports --provider claude --dry-run
 ### Comportamento atual do `context`
 
 - Recebe task textual (`--task`) e filtros opcionais (`--symbol`, `--file`, `--module`)
-- Extrai termos simples e deterministas sem IA/embeddings
+- Extrai termos simples e deterministas sem IA/embeddings, com limpeza de ruido:
+  - remove duplicatas
+  - normaliza case/acentuacao
+  - descarta tokens curtos fracos (mantendo termos curtos fortes como `csv`)
+  - nao gera abreviacoes automaticas fracas
 - Cruza task com:
   - indice estrutural persistido em `.graphmemo/`
   - query layer local (simbolos, modulos, relacoes import/export)
   - notas em `knowledge/` (incluindo `knowledge/imports/`)
   - ADRs e regras em `docs/`
+- Ranking estrutural/lexical explicito e auditavel:
+  - peso alto para match exato de `symbol`, `file/path`, nome de arquivo e `module`
+  - peso medio para relacoes estruturais por import/export e termos fortes de dominio
+  - penalidade para arquivos genericos sem sinal estrutural e para match fraco
 - Monta pacote consolidado com:
   - `Task`
   - `Relevant Files`
@@ -126,6 +134,7 @@ npm run dev -- import-chats --source ./exports --provider claude --dry-run
 - Suporta controle de matching:
   - `--case-sensitive` / `--no-case-sensitive`
   - `--exact-match` / `--no-exact-match`
+- Enriquece `fileRelations` com resolucao local de imports (`./`, `../`) e aliases comuns (`@/`, `~/`) quando o alvo existe no indice
 
 Exemplos:
 
