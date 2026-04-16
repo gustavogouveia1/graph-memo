@@ -30,7 +30,10 @@ export function createFixtureConfig(workspaceRoot: string): ProjectConfig {
   };
 }
 
-export async function runCliCommand(config: ProjectConfig, commandArgs: string[]): Promise<CliRunResult> {
+export async function runCliCommand(
+  config: ProjectConfig,
+  commandArgs: string[]
+): Promise<CliRunResult> {
   const logs: string[] = [];
   const errors: string[] = [];
   const logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {

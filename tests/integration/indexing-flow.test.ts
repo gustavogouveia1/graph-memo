@@ -49,7 +49,11 @@ describe("Indexing flow integration", () => {
       `import { helper } from "./helper"; export function runIndex() { return helper(); }`,
       "utf8"
     );
-    await writeFile(join(srcDirectory, "helper.js"), `export function helper() { return 1; }`, "utf8");
+    await writeFile(
+      join(srcDirectory, "helper.js"),
+      `export function helper() { return 1; }`,
+      "utf8"
+    );
     await writeFile(join(ignoredDirectory, "lib.ts"), `export const ignored = true;`, "utf8");
 
     const useCase = new RunIndexUseCase(
@@ -109,5 +113,42 @@ describe("Indexing flow integration", () => {
       parsedFilesCount: 0,
       reusedFilesCount: 2
     });
+  });
+
+  it("persiste o indice no stateDir configurado", async () => {
+    const workspace = await createWorkspace();
+    const srcDirectory = join(workspace, "src");
+    const customStateDir = ".graphmemo-state";
+    await mkdir(srcDirectory, { recursive: true });
+
+    await writeFile(join(srcDirectory, "feature.ts"), `export const featureFlag = true;`, "utf8");
+
+    const useCase = new RunIndexUseCase(
+      createLoggerStub(),
+      new NodeFileSystem(),
+      new TypeScriptSourceCodeParser(),
+      new FileIndexStore(customStateDir),
+      customStateDir
+    );
+
+    const run = await useCase.execute({
+      targetPath: workspace,
+      fullReindex: false,
+      dryRun: false
+    });
+
+    expect(run.status).toBe("success");
+    expect(run.details).toMatchObject({
+      outputDirectory: `${customStateDir}/`,
+      indexedFilesCount: 1
+    });
+
+    const manifestRaw = await readFile(join(workspace, customStateDir, "manifest.json"), "utf8");
+    const filesRaw = await readFile(join(workspace, customStateDir, "files.json"), "utf8");
+    const manifest = JSON.parse(manifestRaw) as { indexedFilesCount: number };
+    const files = JSON.parse(filesRaw) as Array<{ relativePath: string }>;
+
+    expect(manifest.indexedFilesCount).toBe(1);
+    expect(files.map((file) => file.relativePath)).toEqual(["src/feature.ts"]);
   });
 });

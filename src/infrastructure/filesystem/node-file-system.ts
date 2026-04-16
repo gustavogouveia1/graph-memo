@@ -30,7 +30,11 @@ export class NodeFileSystem implements FileSystemPort {
     };
   }
 
-  private async walk(currentPath: string, ignoredDirectories: Set<string>, files: string[]): Promise<void> {
+  private async walk(
+    currentPath: string,
+    ignoredDirectories: Set<string>,
+    files: string[]
+  ): Promise<void> {
     const entries = await readdir(currentPath, { withFileTypes: true });
 
     await Promise.all(

@@ -1,4 +1,5 @@
 import type { LogLevel } from "../../application/ports/logger";
+import { DEFAULT_STATE_DIR } from "./state-index-paths";
 
 export interface ProjectConfig {
   workspaceRoot: string;
@@ -15,7 +16,7 @@ export function getDefaultProjectConfig(workspaceRoot: string): ProjectConfig {
     workspaceRoot,
     docsDir: "docs",
     knowledgeDir: "knowledge",
-    stateDir: ".graphmemo",
+    stateDir: DEFAULT_STATE_DIR,
     logLevel: "info"
   };
 }

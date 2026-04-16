@@ -24,7 +24,7 @@ export function registerContextCommand(
   program
     .command("context")
     .description("Gera contexto consolidado para uma task textual")
-    .argument("[targetPath]", "Diretorio raiz onde existe .graphmemo/", ".")
+    .argument("[targetPath]", "Diretorio raiz onde existe o indice local", ".")
     .requiredOption("--task <taskText>", "Descricao textual da task de destino")
     .option("--format <format>", "Formato de saida (markdown|json)", "markdown")
     .option("--symbol <name>", "Prioriza contexto relacionado ao simbolo informado")

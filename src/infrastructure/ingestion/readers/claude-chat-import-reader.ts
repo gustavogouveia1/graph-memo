@@ -25,7 +25,11 @@ export class ClaudeChatImportReader implements ProviderReader {
     return chats;
   }
 
-  private parseCandidate(candidate: unknown, sourceFile: string, index: number): ImportedChat | null {
+  private parseCandidate(
+    candidate: unknown,
+    sourceFile: string,
+    index: number
+  ): ImportedChat | null {
     if (!isRecord(candidate)) {
       return null;
     }

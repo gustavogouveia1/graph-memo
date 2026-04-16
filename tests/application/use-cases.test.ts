@@ -4,7 +4,10 @@ import type { FileSystemPort } from "../../src/application/ports/file-system";
 import type { IndexStorePort, StoredIndex } from "../../src/application/ports/index-store";
 import { RunIndexUseCase } from "../../src/application/use-cases/run-index.use-case";
 import type { Logger } from "../../src/application/ports/logger";
-import type { ParsedSourceCode, SourceCodeParserPort } from "../../src/application/ports/source-code-parser";
+import type {
+  ParsedSourceCode,
+  SourceCodeParserPort
+} from "../../src/application/ports/source-code-parser";
 
 function createLoggerStub(): Logger {
   return {
@@ -18,7 +21,10 @@ function createLoggerStub(): Logger {
 describe("Application use cases", () => {
   it("executa indexacao em modo dry-run com resumo consistente", async () => {
     const fileSystem: FileSystemPort = {
-      listFilesRecursively: vi.fn(async () => ["/tmp/project/src/foo.ts", "/tmp/project/README.md"]),
+      listFilesRecursively: vi.fn(async () => [
+        "/tmp/project/src/foo.ts",
+        "/tmp/project/README.md"
+      ]),
       readTextFile: vi.fn(),
       readFileBuffer: vi.fn(async () => Buffer.from("export function runIndex() {}", "utf8")),
       getFileMetadata: vi.fn(async () => ({
@@ -57,5 +63,4 @@ describe("Application use cases", () => {
     });
     expect(indexStore.save).not.toHaveBeenCalled();
   });
-
 });

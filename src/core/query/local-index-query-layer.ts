@@ -121,7 +121,9 @@ export class LocalIndexQueryLayer {
         }
 
         return candidate.imports.some((importEntry) =>
-          this.resolveImportSource(candidate.relativePath, importEntry.source).includes(relativePath)
+          this.resolveImportSource(candidate.relativePath, importEntry.source).includes(
+            relativePath
+          )
         );
       })
       .map((candidate) => candidate.relativePath)
@@ -192,7 +194,9 @@ export class LocalIndexQueryLayer {
   private resolveImportSource(importerPath: string, source: string): string[] {
     if (source.startsWith(".")) {
       const normalizedBasePath = join(dirname(importerPath), source).split("\\").join("/");
-      return this.expandPathCandidates(normalizedBasePath).filter((candidate) => this.indexedPaths.has(candidate));
+      return this.expandPathCandidates(normalizedBasePath).filter((candidate) =>
+        this.indexedPaths.has(candidate)
+      );
     }
 
     const aliasCandidates = this.resolveAliasImportSource(source);

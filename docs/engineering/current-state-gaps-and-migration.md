@@ -1,32 +1,41 @@
-# Estado Atual, Conflitos e Migracao sem Ruptura
+# Estado Atual, Gaps e Evolucao Incremental
 
-## Conflitos encontrados no estado atual
+## Baseline atual do repositorio
 
-Como o repositorio esta vazio, nao ha conflito de implementacao com boas praticas de codigo.
-Porem, ha conflitos de maturidade para um projeto serio:
+O Graph-Memo ja possui uma base executavel e consistente para evolucao incremental:
 
-- ausencia de baseline de arquitetura executavel
-- ausencia de testes automatizados
-- ausencia de padrao de observabilidade operacional
-- ausencia de historico de decisoes (ADR) e memoria viva
+- arquitetura em camadas aplicada entre CLI/Web, aplicacao, dominio e infraestrutura
+- fluxo principal operacional com `index`, `query`, `context` e `import-chats`
+- testes automatizados de unidade, integracao e E2E cobrindo o fluxo MVP+
+- governanca tecnica ativa em `docs/engineering/`, ADRs versionadas e memoria viva em `knowledge/`
+- gate local de qualidade com formatacao, lint, typecheck e testes
 
-## Plano de migracao sem ruptura (quando o codigo iniciar/evoluir)
+## Gaps reais de maturidade no estado atual
 
-1. **Fase 1 - Guardrails imediatos**
-   - Aplicar esta governanca em todas as novas tasks.
-   - Bloquear entrega sem DoD e sem testes minimos.
-2. **Fase 2 - Padronizacao progressiva**
-   - Introduzir estrutura de camadas por modulo novo.
-   - Adaptar modulos legados por prioridade de risco.
-3. **Fase 3 - Endurecimento de qualidade**
-   - Ativar gates de CI para teste, seguranca e lint.
-   - Exigir rastreabilidade completa de bug/feature/decisao.
-4. **Fase 4 - Operacao confiavel**
-   - Consolidar SLOs, alertas e runbooks.
-   - Revisar anti-padroes recorrentes trimestralmente.
+Apesar da base estar solida, ainda existem gaps objetivos de operacao e consistencia:
 
-## Regra de transicao
+1. **Consistencia de configuracao**
+   - `stateDir` precisa ser respeitado de ponta a ponta (persistencia, leitura e mensagens operacionais).
+2. **Confiabilidade do gate local**
+   - falhas de formatacao nao podem quebrar o gate de forma recorrente sem remediacao rapida.
+3. **Automacao de qualidade no repositório**
+   - sem CI minima, o controle de qualidade depende de execucao manual local.
+4. **Alinhamento de documentacao de status**
+   - documentos de estado devem refletir a realidade atual (nem subestimar, nem superestimar maturidade).
 
-- Nenhuma refatoracao massiva sem testes de caracterizacao.
-- Nenhuma quebra de contrato sem processo de schema/API.
-- Mudancas de alto risco devem usar rollout controlado e rollback definido.
+## Estrategia de evolucao sem ruptura
+
+1. **Correcoes pequenas e rastreaveis**
+   - priorizar mudancas localizadas, com contratos preservados e rollback simples.
+2. **Qualidade como pre-condicao de merge**
+   - manter `format:check`, `lint`, `typecheck` e `test` obrigatorios localmente e na CI.
+3. **Documentacao viva acoplada a mudanca**
+   - toda evolucao operacional relevante atualiza `README`, engenharia e notas em `knowledge/`.
+4. **Sem reestruturacao ampla prematura**
+   - evoluir por necessidade comprovada, evitando abstrações ou pipelines infladas.
+
+## Regra de continuidade
+
+- nenhuma refatoracao ampla sem baseline de testes valida
+- nenhuma mudanca de contrato sem processo dedicado quando aplicavel
+- decisoes relevantes devem permanecer registradas em ADR ou `knowledge/decisions/`

@@ -124,7 +124,10 @@ async function handleRequest(
       const body = await readJsonBody(request);
       const format = readString(body, "format", "markdown");
       if (format !== "markdown" && format !== "json") {
-        throw new GraphMemoError("CONTEXT_INVALID_INPUT", "Formato invalido. Use markdown ou json.");
+        throw new GraphMemoError(
+          "CONTEXT_INVALID_INPUT",
+          "Formato invalido. Use markdown ou json."
+        );
       }
       const outputFormat: "markdown" | "json" = format;
 

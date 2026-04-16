@@ -78,7 +78,8 @@ export class FileChatImportReader implements ChatImportReaderPort {
       return this.genericReader.parse(input);
     }
 
-    const providerReader = this.providerReaders[input.provider as Exclude<ChatImportProvider, "generic">];
+    const providerReader =
+      this.providerReaders[input.provider as Exclude<ChatImportProvider, "generic">];
     return providerReader.parse(input);
   }
 

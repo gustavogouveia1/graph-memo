@@ -4,7 +4,10 @@ import type { IndexQueryReaderPort } from "../ports/index-query-reader";
 import type { KnowledgeContextReaderPort } from "../ports/knowledge-context-reader";
 import type { Logger } from "../ports/logger";
 import { buildContextPackage } from "../../core/context/context-package-builder";
-import { formatBuiltContext, type ContextOutputFormat } from "../../core/context/context-output-formatter";
+import {
+  formatBuiltContext,
+  type ContextOutputFormat
+} from "../../core/context/context-output-formatter";
 import type { BuiltContextPackage, ContextBuildFilters } from "../../core/context/context-types";
 import { buildKnowledgeContext } from "../../core/context/knowledge-context-matcher";
 import { buildStructuralContext } from "../../core/context/structural-context-matcher";

@@ -1,6 +1,9 @@
 import ts from "typescript";
 
-import type { ParsedSourceCode, SourceCodeParserPort } from "../../../application/ports/source-code-parser";
+import type {
+  ParsedSourceCode,
+  SourceCodeParserPort
+} from "../../../application/ports/source-code-parser";
 import type { SourceExport } from "../../../core/indexing/source-export";
 import type { SourceImport } from "../../../core/indexing/source-import";
 import type { SourceSymbol } from "../../../core/indexing/source-symbol";
@@ -147,7 +150,10 @@ export class TypeScriptSourceCodeParser implements SourceCodeParserPort {
   }
 
   private extractExportsFromDeclaration(node: ts.ExportDeclaration): SourceExport[] {
-    const source = node.moduleSpecifier !== undefined ? this.getModuleSpecifier(node.moduleSpecifier) : undefined;
+    const source =
+      node.moduleSpecifier !== undefined
+        ? this.getModuleSpecifier(node.moduleSpecifier)
+        : undefined;
 
     if (node.exportClause === undefined) {
       return [];
@@ -164,9 +170,7 @@ export class TypeScriptSourceCodeParser implements SourceCodeParserPort {
         namespaceExport.source = source;
       }
 
-      return [
-        namespaceExport
-      ];
+      return [namespaceExport];
     }
 
     return node.exportClause.elements.map((element) => {

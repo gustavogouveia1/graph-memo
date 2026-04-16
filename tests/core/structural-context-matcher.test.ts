@@ -74,7 +74,9 @@ function createFrontendRelevanceFixture(): IndexedFile[] {
       size: 190,
       mtimeMs: 1710000000030,
       hash: "hash-service",
-      imports: [{ source: "@/shared/http/client", isTypeOnly: false, name: "httpClient", kind: "value" }],
+      imports: [
+        { source: "@/shared/http/client", isTypeOnly: false, name: "httpClient", kind: "value" }
+      ],
       exports: [{ name: "ComissoesService", kind: "class", isDefault: false }],
       symbols: [{ name: "ComissoesService", kind: "class" }]
     },
@@ -167,7 +169,9 @@ describe("buildStructuralContext", () => {
       expect.arrayContaining([
         expect.objectContaining({
           filePath: "src/core/finance/calculate-commission.ts",
-          importedBy: expect.arrayContaining(["src/application/use-cases/process-commission.use-case.ts"])
+          importedBy: expect.arrayContaining([
+            "src/application/use-cases/process-commission.use-case.ts"
+          ])
         })
       ])
     );

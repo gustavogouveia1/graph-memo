@@ -37,7 +37,9 @@ function collectStartingPoints(input: ContextPackageBuilderInput): string[] {
     }
   }
   if (secondFile !== undefined) {
-    suggestions.push(`Comparar ${firstFile ?? secondFile} com ${secondFile} para identificar impacto lateral.`);
+    suggestions.push(
+      `Comparar ${firstFile ?? secondFile} com ${secondFile} para identificar impacto lateral.`
+    );
   }
   if (firstKnowledge !== undefined) {
     suggestions.push(`Ler ${firstKnowledge} para recuperar contexto historico relevante.`);
@@ -47,7 +49,9 @@ function collectStartingPoints(input: ContextPackageBuilderInput): string[] {
   }
 
   if (suggestions.length === 0) {
-    suggestions.push("Nao houve matches suficientes; refine a task com simbolo, arquivo ou modulo.");
+    suggestions.push(
+      "Nao houve matches suficientes; refine a task com simbolo, arquivo ou modulo."
+    );
   }
 
   return [...new Set(suggestions)];

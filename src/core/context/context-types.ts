@@ -17,7 +17,11 @@ export interface StructuralContextResult {
   }>;
 }
 
-export type ContextKnowledgeCategory = "knowledge-note" | "knowledge-import" | "adr" | "engineering-doc";
+export type ContextKnowledgeCategory =
+  | "knowledge-note"
+  | "knowledge-import"
+  | "adr"
+  | "engineering-doc";
 
 export interface ContextKnowledgeDocument {
   relativePath: string;
