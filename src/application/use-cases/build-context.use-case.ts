@@ -36,13 +36,32 @@ export class BuildContextUseCase {
     if (task.length === 0) {
       throw new GraphMemoError(
         "CONTEXT_INVALID_INPUT",
-        "Informe uma task textual valida com --task \"<descricao>\"."
+        "Task invalida. Informe uma descricao nao vazia em --task."
       );
     }
     if (input.format !== "markdown" && input.format !== "json") {
       throw new GraphMemoError(
         "CONTEXT_INVALID_INPUT",
         "Formato invalido. Use --format markdown ou --format json."
+      );
+    }
+
+    if (input.symbol !== undefined && input.symbol.trim().length === 0) {
+      throw new GraphMemoError(
+        "CONTEXT_INVALID_INPUT",
+        "Filtro invalido. O valor de --symbol nao pode ser vazio."
+      );
+    }
+    if (input.file !== undefined && input.file.trim().length === 0) {
+      throw new GraphMemoError(
+        "CONTEXT_INVALID_INPUT",
+        "Filtro invalido. O valor de --file nao pode ser vazio."
+      );
+    }
+    if (input.moduleSource !== undefined && input.moduleSource.trim().length === 0) {
+      throw new GraphMemoError(
+        "CONTEXT_INVALID_INPUT",
+        "Filtro invalido. O valor de --module nao pode ser vazio."
       );
     }
 

@@ -86,7 +86,7 @@ describe("FileChatImportReader", () => {
       })
     ).rejects.toEqual(
       expect.objectContaining<Partial<GraphMemoError>>({
-        code: "IMPORT_CHATS_SOURCE_NOT_FOUND"
+        code: "CHAT_SOURCE_NOT_FOUND"
       })
     );
   });

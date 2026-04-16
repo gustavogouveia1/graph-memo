@@ -160,4 +160,29 @@ describe("BuildContextUseCase", () => {
       })
     );
   });
+
+  it("falha quando filtro symbol e apenas espacos", async () => {
+    const indexReader: IndexQueryReaderPort = {
+      read: vi.fn(async () => createStoredIndexFixture())
+    };
+    const knowledgeReader: KnowledgeContextReaderPort = {
+      readDocuments: vi.fn(async () => createKnowledgeDocumentsFixture())
+    };
+    const useCase = new BuildContextUseCase(createLoggerStub(), indexReader, knowledgeReader);
+
+    await expect(
+      useCase.execute({
+        targetPath: "/tmp/project",
+        task: "task valida",
+        symbol: "   ",
+        format: "markdown",
+        caseSensitive: false,
+        exactMatch: false
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: "CONTEXT_INVALID_INPUT"
+      })
+    );
+  });
 });

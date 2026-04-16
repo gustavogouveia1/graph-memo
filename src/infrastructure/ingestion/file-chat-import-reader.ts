@@ -87,8 +87,8 @@ export class FileChatImportReader implements ChatImportReaderPort {
       return await stat(sourcePath);
     } catch (error: unknown) {
       throw new GraphMemoError(
-        "IMPORT_CHATS_SOURCE_NOT_FOUND",
-        "Caminho de origem para importacao de chats nao encontrado.",
+        "CHAT_SOURCE_NOT_FOUND",
+        "Origem de importacao nao encontrada. Verifique o caminho informado em --source.",
         error,
         { sourcePath }
       );

@@ -97,6 +97,24 @@ describe("QueryIndexUseCase", () => {
     );
   });
 
+  it("falha quando --symbol e informado vazio", async () => {
+    const useCase = new QueryIndexUseCase(createLoggerStub(), createQueryReaderStub());
+
+    await expect(
+      useCase.execute({
+        targetPath: "/tmp/project",
+        symbol: "   ",
+        listFiles: false,
+        caseSensitive: true,
+        exactMatch: true
+      })
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: "QUERY_INVALID_INPUT"
+      })
+    );
+  });
+
   it("propaga erro tipado do reader", async () => {
     const reader: IndexQueryReaderPort = {
       read: vi.fn(async () => {

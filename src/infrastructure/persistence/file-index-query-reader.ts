@@ -26,7 +26,7 @@ export class FileIndexQueryReader implements IndexQueryReaderPort {
     } catch (error: unknown) {
       throw new GraphMemoError(
         "INDEX_NOT_FOUND",
-        "Indice local nao encontrado. Execute `graphmemo index` antes de consultar.",
+        "Indice local nao encontrado. Execute 'graphmemo index <caminho>' antes de usar este comando.",
         error,
         { rootPath }
       );
@@ -40,7 +40,7 @@ export class FileIndexQueryReader implements IndexQueryReaderPort {
     } catch (error: unknown) {
       throw new GraphMemoError(
         "INDEX_CORRUPTED",
-        "Indice local corrompido. Execute `graphmemo index --full` para regenerar os arquivos.",
+        "O indice local esta corrompido ou incompativel. Execute 'graphmemo index <caminho> --full' para reconstrui-lo.",
         error,
         { rootPath }
       );
@@ -49,7 +49,7 @@ export class FileIndexQueryReader implements IndexQueryReaderPort {
     if (!isIndexManifest(manifestJson) || !isIndexedFileList(filesJson)) {
       throw new GraphMemoError(
         "INDEX_CORRUPTED",
-        "Indice local com contrato invalido. Execute `graphmemo index --full` para corrigir.",
+        "O indice local esta corrompido ou incompativel. Execute 'graphmemo index <caminho> --full' para reconstrui-lo.",
         undefined,
         { rootPath }
       );

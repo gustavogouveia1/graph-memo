@@ -38,6 +38,7 @@ export class QueryIndexUseCase {
 
   async execute(input: QueryIndexInput): Promise<TaskExecution> {
     this.ensureAtLeastOneFilter(input);
+    this.ensureFilterValuesNonEmpty(input);
 
     const rootPath = resolve(input.targetPath);
     this.logger.info("Executando consulta no indice local", {
@@ -127,7 +128,34 @@ export class QueryIndexUseCase {
     if (!hasAnyFilter) {
       throw new GraphMemoError(
         "QUERY_INVALID_INPUT",
-        "Informe ao menos um filtro de consulta: --symbol, --file, --module, --related-to ou --list-files."
+        "Consulta invalida. Informe ao menos um filtro de busca: --symbol, --module, --file, --related-to ou --list-files."
+      );
+    }
+  }
+
+  private ensureFilterValuesNonEmpty(input: QueryIndexInput): void {
+    if (input.symbol !== undefined && input.symbol.trim().length === 0) {
+      throw new GraphMemoError(
+        "QUERY_INVALID_INPUT",
+        "Consulta invalida. O valor de --symbol nao pode ser vazio."
+      );
+    }
+    if (input.file !== undefined && input.file.trim().length === 0) {
+      throw new GraphMemoError(
+        "QUERY_INVALID_INPUT",
+        "Consulta invalida. O valor de --file nao pode ser vazio."
+      );
+    }
+    if (input.moduleSource !== undefined && input.moduleSource.trim().length === 0) {
+      throw new GraphMemoError(
+        "QUERY_INVALID_INPUT",
+        "Consulta invalida. O valor de --module nao pode ser vazio."
+      );
+    }
+    if (input.relatedTo !== undefined && input.relatedTo.trim().length === 0) {
+      throw new GraphMemoError(
+        "QUERY_INVALID_INPUT",
+        "Consulta invalida. O valor de --related-to nao pode ser vazio."
       );
     }
   }
