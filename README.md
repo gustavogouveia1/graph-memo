@@ -64,6 +64,18 @@ graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic
   - `--exact-match` / `--no-exact-match`
 - Trata erros tipados para indice ausente/corrompido com instrucoes de recuperacao
 
+### Troubleshooting (erros comuns)
+
+Mensagens seguem o padrao `[CODIGO] descricao` no stderr. Abaixo, causas e recuperacao.
+
+| Codigo | O que fazer |
+| --- | --- |
+| `INDEX_NOT_FOUND` | Rode `graphmemo index <caminho-do-projeto>` no diretorio que deve conter `.graphmemo/`. |
+| `INDEX_CORRUPTED` | Apague ou regenere o estado: `graphmemo index <caminho> --full`. |
+| `QUERY_INVALID_INPUT` | Informe ao menos um filtro (`--symbol`, `--file`, `--module`, `--related-to` ou `--list-files`); valores de filtro nao podem ser vazios. |
+| `CONTEXT_INVALID_INPUT` | Use `--task` com texto nao vazio; `--format` deve ser `markdown` ou `json`; filtros opcionais nao podem ser vazios. |
+| `CHAT_SOURCE_NOT_FOUND` | Confira o caminho passado em `--source` (arquivo ou diretorio existente). |
+
 Exemplos:
 
 ```bash

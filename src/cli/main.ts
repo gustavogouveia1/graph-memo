@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createCli } from "./create-cli";
-import { GraphMemoError } from "../core/errors/graphmemo-error";
+import { writeCliRuntimeError } from "./user-error-output";
 import { loadProjectConfig } from "../shared/config/load-project-config";
 
 async function bootstrap(): Promise<void> {
@@ -10,13 +10,6 @@ async function bootstrap(): Promise<void> {
 }
 
 void bootstrap().catch((error: unknown) => {
-  if (error instanceof GraphMemoError) {
-    console.error(`[${error.code}] ${error.message}`);
-    process.exitCode = 1;
-    return;
-  }
-
-  const message = error instanceof Error ? error.message : "Erro inesperado na execucao da CLI.";
-  console.error(message);
+  writeCliRuntimeError(error);
   process.exitCode = 1;
 });
