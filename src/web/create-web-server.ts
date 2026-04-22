@@ -151,7 +151,10 @@ async function handleRequest(
         Object.assign(input, { moduleSource });
       }
 
-      const result = await services.buildContextUseCase.execute(input);
+      const refineWithClaude = readBoolean(body, "refineWithClaude", false);
+      const result = refineWithClaude
+        ? await services.refineContextUseCase.execute(input)
+        : await services.buildContextUseCase.execute(input);
       writeJson(response, 200, { result });
     });
     return;

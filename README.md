@@ -37,7 +37,7 @@ knowledge/          # memoria viva do projeto
 ```bash
 graphmemo index [targetPath] [--full] [--dry-run]
 graphmemo query [targetPath] [--symbol <name>] [--file <relativePath>] [--module <source>] [--related-to <relativePath>] [--list-files]
-graphmemo context [targetPath] --task "<descricao>" [--format markdown|json] [--symbol <name>] [--file <relativePath>] [--module <source>]
+graphmemo context [targetPath] --task "<descricao>" [--format markdown|json] [--symbol <name>] [--file <relativePath>] [--module <source>] [--refine-with-claude]
 graphmemo import-chats --source <path> [--provider cursor|chatgpt|claude|generic] [--dry-run]
 ```
 
@@ -106,6 +106,7 @@ Contrato de erro (padrao):
 - informe `workspace path`
 - preencha `task` e filtros opcionais (`symbol`, `module`)
 - escolha formato (`markdown` ou `json`)
+- opcional: habilite refinamento com Claude
 - clique `Gerar contexto`
 - use `Copiar resultado` para transferir o preview
 
@@ -207,6 +208,8 @@ npm run dev -- import-chats --source ./exports --provider claude --dry-run
   - `--case-sensitive` / `--no-case-sensitive`
   - `--exact-match` / `--no-exact-match`
 - Enriquece `fileRelations` com resolucao local de imports (`./`, `../`) e aliases comuns (`@/`, `~/`) quando o alvo existe no indice
+- Suporta refinamento opcional via `--refine-with-claude`, preservando sempre o contexto deterministico bruto como fonte de verdade
+- Em caso de Claude desativado, nao configurado, timeout ou erro upstream, o comando falha de forma suave e retorna apenas camada deterministica + status da tentativa de refinamento
 
 Exemplos:
 
@@ -334,6 +337,17 @@ Campos suportados:
 - `knowledgeDir`
 - `stateDir` (default: `.graphmemo`)
 - `logLevel` (`debug`, `info`, `warn`, `error`)
+- `aiRefinement.enabled` (boolean)
+- `aiRefinement.apiKey` (string)
+- `aiRefinement.model` (string, default `claude-3-5-sonnet-latest`)
+- `aiRefinement.timeoutMs` (number, default `8000`)
+
+Tambem e possivel configurar por variavel de ambiente:
+
+- `GRAPHMEMO_AI_REFINEMENT_ENABLED` (`true|false`)
+- `GRAPHMEMO_CLAUDE_API_KEY`
+- `GRAPHMEMO_CLAUDE_MODEL`
+- `GRAPHMEMO_CLAUDE_TIMEOUT_MS`
 
 ## Estado atual
 

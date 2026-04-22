@@ -19,7 +19,10 @@ export function createCli(config: ProjectConfig): Command {
 
   registerIndexCommand(program, { runIndexUseCase: services.runIndexUseCase });
   registerQueryCommand(program, { queryIndexUseCase: services.queryIndexUseCase });
-  registerContextCommand(program, { buildContextUseCase: services.buildContextUseCase });
+  registerContextCommand(program, {
+    buildContextUseCase: services.buildContextUseCase,
+    refineContextUseCase: services.refineContextUseCase
+  });
   registerImportChatsCommand(program, { importChatsUseCase: services.importChatsUseCase });
 
   return program;

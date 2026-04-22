@@ -26,7 +26,13 @@ export function createFixtureConfig(workspaceRoot: string): ProjectConfig {
     docsDir: "docs",
     knowledgeDir: "knowledge",
     stateDir: ".graphmemo",
-    logLevel: "error"
+    logLevel: "error",
+    aiRefinement: {
+      enabled: false,
+      apiKey: "",
+      model: "claude-3-5-sonnet-latest",
+      timeoutMs: 8000
+    }
   };
 }
 

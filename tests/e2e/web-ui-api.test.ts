@@ -67,6 +67,44 @@ describe("Web API e2e (camada fina sobre use cases)", () => {
       await close();
     }
   });
+
+  it("retorna camada de refinamento opcional sem quebrar contexto base", async () => {
+    const workspace = await createWorkspaceFromFixture(tempDirectories);
+    const { baseUrl, close } = await startTestServer(workspace);
+
+    try {
+      const indexResponse = await postJson(baseUrl, "/api/index", { workspacePath: workspace });
+      expect(indexResponse.status).toBe(200);
+
+      const response = await postJson(baseUrl, "/api/context", {
+        workspacePath: workspace,
+        task: "corrigir calculo de comissao premium",
+        refineWithClaude: true
+      });
+      const body = response.body as {
+        result: {
+          details: {
+            deterministicContext: {
+              relevantFiles: string[];
+            };
+            refinement: {
+              status: string;
+              reasonCode: string;
+            };
+          };
+        };
+      };
+
+      expect(response.status).toBe(200);
+      expect(body.result.details.deterministicContext.relevantFiles).toContain(
+        "src/domain/commission-policy.ts"
+      );
+      expect(body.result.details.refinement.status).toBe("skipped");
+      expect(body.result.details.refinement.reasonCode).toBe("AI_REFINEMENT_DISABLED");
+    } finally {
+      await close();
+    }
+  });
 });
 
 async function startTestServer(workspaceRoot: string) {

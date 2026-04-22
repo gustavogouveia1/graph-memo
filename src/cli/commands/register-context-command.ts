@@ -1,10 +1,12 @@
 import type { Command } from "commander";
 
 import type { BuildContextUseCase } from "../../application/use-cases/build-context.use-case";
+import type { RefineContextUseCase } from "../../application/use-cases/refine-context.use-case";
 import { printTaskExecution } from "../output/print-task-execution";
 
 interface RegisterContextCommandDependencies {
   buildContextUseCase: BuildContextUseCase;
+  refineContextUseCase: RefineContextUseCase;
 }
 
 interface ContextCommandOptions {
@@ -15,6 +17,7 @@ interface ContextCommandOptions {
   module?: string;
   caseSensitive: boolean;
   exactMatch: boolean;
+  refineWithClaude: boolean;
 }
 
 export function registerContextCommand(
@@ -34,6 +37,11 @@ export function registerContextCommand(
     .option("--no-case-sensitive", "Compara texto sem diferenca entre maiusculas/minusculas")
     .option("--exact-match", "Exige comparacao exata", false)
     .option("--no-exact-match", "Permite comparacao parcial por contains")
+    .option(
+      "--refine-with-claude",
+      "Aplica refinamento opcional por Claude sem substituir o contexto deterministico",
+      false
+    )
     .action(async (targetPath: string, options: ContextCommandOptions) => {
       const input = {
         targetPath,
@@ -52,7 +60,9 @@ export function registerContextCommand(
         Object.assign(input, { moduleSource: options.module });
       }
 
-      const result = await dependencies.buildContextUseCase.execute(input);
+      const result = options.refineWithClaude
+        ? await dependencies.refineContextUseCase.execute(input)
+        : await dependencies.buildContextUseCase.execute(input);
 
       printTaskExecution(result);
     });

@@ -597,6 +597,12 @@ export function renderWebUiHtml(defaultWorkspacePath: string, demoFixturePath: s
           <label for="context-task">Task</label>
           <textarea id="context-task" placeholder="Ex.: corrigir calculo de comissao premium"></textarea>
         </div>
+        <div class="options">
+          <label class="checkbox">
+            <input id="context-refine-with-claude" type="checkbox" />
+            Refinar com Claude (opcional)
+          </label>
+        </div>
         <div class="actions">
           <button class="primary" data-action="context">Gerar contexto</button>
           <button data-action="copy-context">Copiar resultado</button>
@@ -782,7 +788,8 @@ export function renderWebUiHtml(defaultWorkspacePath: string, demoFixturePath: s
           task: q("context-task").value,
           symbol: textOrUndefined(q("context-symbol").value),
           module: textOrUndefined(q("context-module").value),
-          format: q("context-format").value
+          format: q("context-format").value,
+          refineWithClaude: q("context-refine-with-claude").checked
         });
         const details = data.result.details;
         lastContextOutput = typeof details === "string" ? details : JSON.stringify(details, null, 2);

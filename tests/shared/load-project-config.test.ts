@@ -35,7 +35,13 @@ describe("loadProjectConfig", () => {
       docsDir: "docs",
       knowledgeDir: "knowledge",
       stateDir: ".graphmemo",
-      logLevel: "info"
+      logLevel: "info",
+      aiRefinement: {
+        enabled: false,
+        apiKey: "",
+        model: "claude-3-5-sonnet-latest",
+        timeoutMs: 8000
+      }
     });
   });
 
@@ -48,7 +54,13 @@ describe("loadProjectConfig", () => {
       JSON.stringify({
         docsDir: "engineering",
         stateDir: ".graphmemo-state",
-        logLevel: "debug"
+        logLevel: "debug",
+        aiRefinement: {
+          enabled: true,
+          apiKey: "config-api-key",
+          model: "claude-3-7-sonnet-latest",
+          timeoutMs: 12000
+        }
       }),
       "utf8"
     );
@@ -60,7 +72,38 @@ describe("loadProjectConfig", () => {
       docsDir: "engineering",
       knowledgeDir: "knowledge",
       stateDir: ".graphmemo-state",
-      logLevel: "debug"
+      logLevel: "debug",
+      aiRefinement: {
+        enabled: true,
+        apiKey: "config-api-key",
+        model: "claude-3-7-sonnet-latest",
+        timeoutMs: 12000
+      }
     });
+  });
+
+  it("permite sobrescrever aiRefinement por variavel de ambiente", async () => {
+    const workspace = await createTempWorkspace();
+
+    process.env.GRAPHMEMO_AI_REFINEMENT_ENABLED = "true";
+    process.env.GRAPHMEMO_CLAUDE_API_KEY = "env-api-key";
+    process.env.GRAPHMEMO_CLAUDE_MODEL = "claude-3-5-haiku-latest";
+    process.env.GRAPHMEMO_CLAUDE_TIMEOUT_MS = "4567";
+
+    try {
+      const config = await loadProjectConfig(workspace);
+
+      expect(config.aiRefinement).toMatchObject({
+        enabled: true,
+        apiKey: "env-api-key",
+        model: "claude-3-5-haiku-latest",
+        timeoutMs: 4567
+      });
+    } finally {
+      delete process.env.GRAPHMEMO_AI_REFINEMENT_ENABLED;
+      delete process.env.GRAPHMEMO_CLAUDE_API_KEY;
+      delete process.env.GRAPHMEMO_CLAUDE_MODEL;
+      delete process.env.GRAPHMEMO_CLAUDE_TIMEOUT_MS;
+    }
   });
 });

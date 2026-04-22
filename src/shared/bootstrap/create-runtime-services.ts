@@ -1,7 +1,9 @@
 import { BuildContextUseCase } from "../../application/use-cases/build-context.use-case";
 import { ImportChatsUseCase } from "../../application/use-cases/import-chats.use-case";
 import { QueryIndexUseCase } from "../../application/use-cases/query-index.use-case";
+import { RefineContextUseCase } from "../../application/use-cases/refine-context.use-case";
 import { RunIndexUseCase } from "../../application/use-cases/run-index.use-case";
+import { ClaudeContextRefiner } from "../../infrastructure/ai/claude-context-refiner";
 import { NodeFileSystem } from "../../infrastructure/filesystem/node-file-system";
 import { FileChatImportReader } from "../../infrastructure/ingestion/file-chat-import-reader";
 import { FileKnowledgeContextReader } from "../../infrastructure/knowledge/file-knowledge-context-reader";
@@ -18,6 +20,7 @@ export interface RuntimeServices {
   runIndexUseCase: RunIndexUseCase;
   queryIndexUseCase: QueryIndexUseCase;
   buildContextUseCase: BuildContextUseCase;
+  refineContextUseCase: RefineContextUseCase;
   importChatsUseCase: ImportChatsUseCase;
   memoryStore: FileMemoryStore;
   memoryQueryReader: FileMemoryQueryReader;
@@ -33,10 +36,12 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
   const memoryQueryReader = new FileMemoryQueryReader(config.stateDir);
   const chatImportReader = new FileChatImportReader();
   const knowledgeWriter = new FileKnowledgeWriter();
+  const aiContextRefiner = new ClaudeContextRefiner(config.aiRefinement);
   const knowledgeContextReader = new FileKnowledgeContextReader(fileSystem, {
     knowledgeDirectory: config.knowledgeDir,
     docsDirectory: config.docsDir
   });
+  const buildContextUseCase = new BuildContextUseCase(logger, queryReader, knowledgeContextReader);
 
   return {
     runIndexUseCase: new RunIndexUseCase(
@@ -47,7 +52,13 @@ export function createRuntimeServices(config: ProjectConfig): RuntimeServices {
       config.stateDir
     ),
     queryIndexUseCase: new QueryIndexUseCase(logger, queryReader),
-    buildContextUseCase: new BuildContextUseCase(logger, queryReader, knowledgeContextReader),
+    buildContextUseCase,
+    refineContextUseCase: new RefineContextUseCase(
+      logger,
+      buildContextUseCase,
+      aiContextRefiner,
+      config.aiRefinement
+    ),
     importChatsUseCase: new ImportChatsUseCase(
       logger,
       chatImportReader,

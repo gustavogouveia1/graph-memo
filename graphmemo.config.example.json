@@ -2,5 +2,11 @@
   "docsDir": "docs",
   "knowledgeDir": "knowledge",
   "stateDir": ".graphmemo",
-  "logLevel": "info"
+  "logLevel": "info",
+  "aiRefinement": {
+    "enabled": false,
+    "apiKey": "",
+    "model": "claude-3-5-sonnet-latest",
+    "timeoutMs": 8000
+  }
 }

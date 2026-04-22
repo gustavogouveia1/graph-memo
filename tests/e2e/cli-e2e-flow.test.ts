@@ -150,6 +150,39 @@ describe("CLI e2e flow with realistic fixture", () => {
     expect(queryRun.errors).toEqual([]);
     expect(queryRun.logs[0]).toContain("[SUCCESS] query:");
   });
+
+  it("mantem contexto deterministico quando refinamento Claude esta desativado", async () => {
+    const workspace = await createWorkspaceFromFixture(tempDirectories);
+    const config = createFixtureConfig(workspace);
+
+    const indexRun = await runCliCommand(config, ["index", workspace]);
+    expect(indexRun.errors).toEqual([]);
+
+    const refinedContextRun = await runCliCommand(config, [
+      "context",
+      workspace,
+      "--task",
+      "corrigir calculo de comissao premium",
+      "--refine-with-claude"
+    ]);
+
+    expect(refinedContextRun.errors).toEqual([]);
+    const refinedDetails = extractJsonDetails(refinedContextRun.logs) as {
+      deterministicContext?: {
+        relevantFiles?: string[];
+      };
+      refinement?: {
+        status?: string;
+        reasonCode?: string;
+      };
+    };
+
+    expect(refinedDetails.deterministicContext?.relevantFiles).toContain(
+      "src/domain/commission-policy.ts"
+    );
+    expect(refinedDetails.refinement?.status).toBe("skipped");
+    expect(refinedDetails.refinement?.reasonCode).toBe("AI_REFINEMENT_DISABLED");
+  });
 });
 
 function extractJsonDetails(logs: string[]): Record<string, unknown> {
